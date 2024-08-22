@@ -93,10 +93,17 @@ public class LinearSlideTest extends OpMode
             power = 0;
         }
 
+        boolean a = gamepad1.a;
+        if (a) {
+            runtime.reset();
+        }
+
         motor.setPower(power);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors speed", power);
+        telemetry.addData("", power);
+        telemetry.update();
     }
 }
