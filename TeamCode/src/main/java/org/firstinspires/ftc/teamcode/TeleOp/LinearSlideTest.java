@@ -29,13 +29,10 @@
 
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 /*
  This code tests a linear slide cycling
@@ -47,7 +44,7 @@ public class LinearSlideTest extends OpMode
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     ElapsedTime slide_progress = new ElapsedTime();
-    private DcMotor motor = null;
+    private DcMotor slide = null; // Slide Motor
     boolean slide_target = false;
     double max_length = 1;
     boolean slide_finished = true;
@@ -57,10 +54,11 @@ public class LinearSlideTest extends OpMode
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "WAIT...");
 
         // Set up to use the front left motor on the robot for testing purposes. (Because at the time of this being written we don't have another motor to use)
-        motor  = hardwareMap.get(DcMotor.class, "leftFront");
+        slide = hardwareMap.get(DcMotor.class, "leftFront");
+        slide.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -75,27 +73,25 @@ public class LinearSlideTest extends OpMode
      //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        motor.setDirection(DcMotor.Direction.REVERSE);
-        if (slide_progress.seconds() >= max_length) {
-            slide_finished = true;
-        }
+        slide_finished = (slide_progress.seconds() >= max_length); // If timer has passed the "max_length" time, then the slide is finished moving.
 
-        // Slide state change
+        // Change the target state on key press if the slide is not currently moving
         if (gamepad1.right_bumper && slide_finished) {
-            slide_progress.reset();
-            slide_finished = false;
-            slide_target = !slide_target; // Toggle
+            slide_progress.reset(); // Reset slide progress
+            slide_finished = false; // Set the slide as not in its target state
+            slide_target = !slide_target; // Toggle the target state
         }
 
-        // Move slide
-        if (slide_finished) {motor.setPower(0);} // The slide is in its target position
+        // Move slide accordingly
+        if (slide_finished) {
+            slide.setPower(0);} // The slide is in its target position
         else {
-            if (slide_target) {motor.setPower(1);}
-            else {motor.setPower(-1);}
-        }
+            if (slide_target) {slide.setPower(1);}  // The slide is not in it's target position, The target position is in the enabled state
+            else              {slide.setPower(-1);} // The slide is not in it's target position, The target position is in the disabled state
+        } // The slide is not in it's target position
+
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", "Run Time(s): " + runtime.seconds());
         telemetry.addData("Current", slide_target);
         telemetry.addData("Result", slide_finished);
         telemetry.addData("Progress", slide_progress.toString());

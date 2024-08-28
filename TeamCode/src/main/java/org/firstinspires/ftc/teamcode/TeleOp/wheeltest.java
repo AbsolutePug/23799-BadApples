@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+// This is a simple script to test the drive motors on the robot. This is used to tell if motor directions are set correctly.
+
 @TeleOp(name="Motor Tester", group="Test")
 public class wheeltest extends LinearOpMode {
 

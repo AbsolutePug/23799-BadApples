@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 //import com.acmerobotics.roadrunner.Math;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,8 +17,8 @@ public class Controller extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
+    static void helloworld(Boolean hi) {System.out.print("Test");}
 
-    private Servo Drone = null;
 
     @Override
     public void runOpMode() {
@@ -28,17 +29,12 @@ public class Controller extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-        Drone = hardwareMap.get(Servo.class, "drone");
-
-
-
-        // Motor Direction
-        Drone.setDirection(Servo.Direction.FORWARD);
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
+
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Init, Ready for Start!");
@@ -62,25 +58,23 @@ public class Controller extends LinearOpMode {
             double axial = gamepad1.left_stick_y; // Forward
             double lateral = gamepad1.left_stick_x; // Strafe
             double yaw = -gamepad1.right_stick_x; // Turn
-            double trigger = gamepad1.right_trigger; // Right Trigger (Slowmode)
-            boolean brakeEng = gamepad1.a; // Brake Control
-            boolean brakeDis = gamepad1.b; // Brake Disengage
-            boolean dStatus = false; //Status of drone launcher as launched or not. Used for telemetry
-            boolean dLaunch = (gamepad1.right_bumper  || gamepad2.right_bumper); // Launch Drone
-            boolean dReset = (gamepad1.left_bumper || gamepad2.left_bumper); // Reset Drone Servo
+            double trigger = gamepad1.right_trigger; // Right Trigger (Slow-mode)
+            boolean brake_engaged = gamepad1.a; // Brake Control
+            boolean brake_disengaged = gamepad1.b; // Brake Disengage
 
             // Accuracy mode. If right stick is more than half way pressed. Enable Accuracy mode (slowmode)
-            boolean accMode = trigger > .5;
+            boolean accuracy_mode = trigger > .5;
 
             // Brake Control
-            if (brakeEng) { // If brake engage button is pressed
+            // If engaged the wheels will be locked in place, if not the wheels can be moved freely. Disengaging allows
+            if (brake_engaged) { // If brake engage button is pressed
                 brake = true;
                 leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             } // If brake engage button is pressed
-            if (brakeDis) {
+            if (brake_disengaged) {
                 brake = false;
                 leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -88,24 +82,12 @@ public class Controller extends LinearOpMode {
                 rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             } // If brake disengage button is pressed
 
-            // Drone Launcher Control
-            double dtLaunch = .25; // Target position for servo when launched
-            double dtReset = 0; // Target position for servo when reset
-            if (dLaunch) {
-                Drone.setPosition(dtLaunch);
-                dStatus = true;
-            } // If drone launch button is pressed
-            else if (dReset) {
-                dStatus = false;
-                Drone.setPosition(dtReset);
-            } // If drone servo reset button is pressed
-
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
             double leftBackPower = axial - lateral + yaw;
             double rightBackPower = axial + lateral - yaw;
-            if (accMode) {
+            if (accuracy_mode) {
                 leftFrontPower = leftFrontPower * .5;
                 rightFrontPower = rightFrontPower * .5;
                 leftBackPower = leftBackPower * .5;
@@ -136,15 +118,9 @@ public class Controller extends LinearOpMode {
             // Brake Telemetry
             if (brake)  {telemetry.addData("Brake", "Engaged");}
             else        {telemetry.addData("Brake", "Disengaged");}
-            telemetry.addData("Accuracy Mode", accMode);
-
-            // Drone Launcher Telemetry
-            telemetry.addData("-- Drone --", ""); //Divider
-            telemetry.addData("Drone Status", dStatus);
-            telemetry.addData("Drone Position", Drone.getPosition());
+            telemetry.addData("Accuracy Mode", accuracy_mode);
 
             // Misc
-
             telemetry.addData("-- Misc --", ""); //Divider
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
