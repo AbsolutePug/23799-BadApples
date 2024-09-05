@@ -32,22 +32,23 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
- This code tests a linear slide cycling
+ This code tests linear slide extending and retracting
+ Written by Robert Maddox (2024)
  */
 
 @TeleOp(name="Linear Slide Test", group="Test")
-public class LinearSlideTest extends OpMode
-{
+public class LinearSlideTest extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     ElapsedTime slide_progress = new ElapsedTime();
     private DcMotor slide = null; // Slide Motor
     boolean slide_target = false;
-    double max_length = 1;
-    boolean slide_finished = true;
+    boolean last_rightbumper = false;
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -58,7 +59,11 @@ public class LinearSlideTest extends OpMode
 
         // Set up to use the front left motor on the robot for testing purposes. (Because at the time of this being written we don't have another motor to use)
         slide = hardwareMap.get(DcMotor.class, "leftFront");
-        slide.setDirection(DcMotor.Direction.REVERSE);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setTargetPosition(0);
+        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //slide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -70,31 +75,30 @@ public class LinearSlideTest extends OpMode
         runtime.reset();
     }
 
-     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+    //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        slide_finished = (slide_progress.seconds() >= max_length); // If timer has passed the "max_length" time, then the slide is finished moving.
+        double power = (slide_progress.seconds());
+        if (slide_progress.seconds() > 2) {power = 0;} // If slide motor has been running for more than 2 seconds set the power to 0
+        power = Math.min(power,1); // Make sure power does not exceed 1
 
         // Change the target state on key press if the slide is not currently moving
-        if (gamepad1.right_bumper && slide_finished) {
+        if (gamepad1.right_bumper && !last_rightbumper) {
             slide_progress.reset(); // Reset slide progress
-            slide_finished = false; // Set the slide as not in its target state
             slide_target = !slide_target; // Toggle the target state
-        }
 
-        // Move slide accordingly
-        if (slide_finished) {
-            slide.setPower(0);} // The slide is in its target position
-        else {
-            if (slide_target) {slide.setPower(1);}  // The slide is not in it's target position, The target position is in the enabled state
-            else              {slide.setPower(-1);} // The slide is not in it's target position, The target position is in the disabled state
-        } // The slide is not in it's target position
+            if (slide_target) {slide.setTargetPosition(-2150);} // Extended State
+            else {slide.setTargetPosition(0);} // Retracted State
+        }
+        slide.setPower(power);
+
+        last_rightbumper = gamepad1.right_bumper;
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Current", slide_target);
-        telemetry.addData("Result", slide_finished);
+        telemetry.addData("Slide Power", power);
         telemetry.addData("Progress", slide_progress.toString());
+        telemetry.addData("Position", slide.getCurrentPosition());
         telemetry.update();
     }
 }

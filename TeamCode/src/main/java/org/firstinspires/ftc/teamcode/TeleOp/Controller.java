@@ -1,28 +1,24 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
-//import com.acmerobotics.roadrunner.Math;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-//import com.qualcomm.robotcore.hardware.ServoImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="TeleOp", group="Custom")
 public class Controller extends LinearOpMode {
 
+
     // Declare OpMode members for each of the 4 motors.
     private final ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime loop_time = new ElapsedTime();
     private DcMotor leftFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
-    static void helloworld(Boolean hi) {System.out.print("Test");}
-
 
     @Override
     public void runOpMode() {
-
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
@@ -114,7 +110,8 @@ public class Controller extends LinearOpMode {
 
 
             // Basic Telemetry
-            telemetry.addData("Status", "Run Time: " + runtime);
+            telemetry.addData("Status", "" + runtime.toString());
+            telemetry.addData("Loop time", loop_time.toString());
             // Brake Telemetry
             if (brake)  {telemetry.addData("Brake", "Engaged");}
             else        {telemetry.addData("Brake", "Disengaged");}
