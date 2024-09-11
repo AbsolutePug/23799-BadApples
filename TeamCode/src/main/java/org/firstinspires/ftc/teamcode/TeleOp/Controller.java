@@ -58,7 +58,7 @@ public class Controller extends LinearOpMode {
             boolean brake_engaged = gamepad1.a; // Brake Control
             boolean brake_disengaged = gamepad1.b; // Brake Disengage
 
-            // Accuracy mode. If right stick is more than half way pressed. Enable Accuracy mode (slowmode)
+            // Accuracy mode. If right stick is more than half way pressed. Enable Accuracy mode (slow-mode)
             boolean accuracy_mode = trigger > .5;
 
             // Brake Control
@@ -110,7 +110,7 @@ public class Controller extends LinearOpMode {
 
 
             // Basic Telemetry
-            telemetry.addData("Status", "" + runtime.toString());
+            telemetry.addData("Status", "" + runtime);
             telemetry.addData("Loop time", loop_time.toString());
             // Brake Telemetry
             if (brake)  {telemetry.addData("Brake", "Engaged");}

@@ -32,12 +32,11 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
  This code tests linear slide extending and retracting
- Written by Robert Maddox (2024)
+ Written by Robert Maddox (2024) @AbsolutePug (github.com/AbsolutePug)
  */
 
 @TeleOp(name="Linear Slide Test", group="Test")
@@ -47,7 +46,7 @@ public class LinearSlideTest extends OpMode {
     ElapsedTime slide_progress = new ElapsedTime();
     private DcMotor slide = null; // Slide Motor
     boolean slide_target = false;
-    boolean last_rightbumper = false;
+    boolean last_right_bumper = false;
 
 
     /*
@@ -83,7 +82,7 @@ public class LinearSlideTest extends OpMode {
         power = Math.min(power,1); // Make sure power does not exceed 1
 
         // Change the target state on key press if the slide is not currently moving
-        if (gamepad1.right_bumper && !last_rightbumper) {
+        if (gamepad1.right_bumper && !last_right_bumper) {
             slide_progress.reset(); // Reset slide progress
             slide_target = !slide_target; // Toggle the target state
 
@@ -92,7 +91,9 @@ public class LinearSlideTest extends OpMode {
         }
         slide.setPower(power);
 
-        last_rightbumper = gamepad1.right_bumper;
+
+        // Set the "last keys" to the current key
+        last_right_bumper = gamepad1.right_bumper;
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
