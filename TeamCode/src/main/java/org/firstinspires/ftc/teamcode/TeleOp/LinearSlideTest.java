@@ -46,7 +46,7 @@ public class LinearSlideTest extends OpMode {
     ElapsedTime slide_progress = new ElapsedTime();
     private DcMotor slide = null; // Slide Motor
     boolean slide_target = false;
-    boolean last_right_bumper = false;
+    boolean last_slide_button = false;
 
 
     /*
@@ -57,7 +57,7 @@ public class LinearSlideTest extends OpMode {
         telemetry.addData("Status", "WAIT...");
 
         // Set up to use the front left motor on the robot for testing purposes. (Because at the time of this being written we don't have another motor to use)
-        slide = hardwareMap.get(DcMotor.class, "leftFront");
+        slide = hardwareMap.get(DcMotor.class, "New1");
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide.setTargetPosition(0);
         slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -77,12 +77,14 @@ public class LinearSlideTest extends OpMode {
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
+        boolean slide_button = gamepad1.right_bumper || gamepad2.right_bumper;
+
         double power = (slide_progress.seconds());
         if (slide_progress.seconds() > 2) {power = 0;} // If slide motor has been running for more than 2 seconds set the power to 0
         power = Math.min(power,1); // Make sure power does not exceed 1
 
         // Change the target state on key press if the slide is not currently moving
-        if (gamepad1.right_bumper && !last_right_bumper) {
+        if (slide_button && !last_slide_button) {
             slide_progress.reset(); // Reset slide progress
             slide_target = !slide_target; // Toggle the target state
 
@@ -90,10 +92,8 @@ public class LinearSlideTest extends OpMode {
             else {slide.setTargetPosition(0);} // Retracted State
         }
         slide.setPower(power);
-
-
         // Set the "last keys" to the current key
-        last_right_bumper = gamepad1.right_bumper;
+        last_slide_button = slide_button;
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
