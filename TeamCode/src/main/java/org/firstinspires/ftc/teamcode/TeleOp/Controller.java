@@ -62,7 +62,9 @@ public class Controller extends LinearOpMode {
         boolean arm_active = false;
         boolean arm_state_change = false; // Is the arm currently changing state?
         double arm_x_right = 0.18;
+        double arm_x_center = 0.5;
         double arm_x_left = 0.82;
+        double wrist_x = arm_x_left;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -76,7 +78,6 @@ public class Controller extends LinearOpMode {
             boolean brake_engaged = gamepad1.a; // Brake Control
             boolean brake_disengaged = gamepad1.b; // Brake Disengage
             // Scoring device
-            double arm_x = gamepad2.right_stick_x*0.32 +  + 0.5; // Wrist
             double arm_y = -gamepad2.left_stick_y; // Up/Down
 
             // Scoring device
@@ -84,7 +85,12 @@ public class Controller extends LinearOpMode {
                 if (arm_active) {
                     arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                     arm.setPower(arm_y * 0.75);
-                    wrist.setPosition(arm_x);
+                    // Wrist Control
+                    if (gamepad2.dpad_left) {wrist_x = arm_x_left;}
+                    else if (gamepad2.dpad_right) {wrist_x = arm_x_right;}
+                    else if (gamepad2.dpad_up || gamepad2.dpad_down) {wrist_x = arm_x_center;}
+                    wrist.setPosition(wrist_x);
+
                     // Claw control
                     if (gamepad2.right_bumper) {
                         claw.setPower(1);
@@ -93,7 +99,8 @@ public class Controller extends LinearOpMode {
                     } else {
                         claw.setPower(0);
                     }
-                } else {
+                }
+                else {
                     arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     arm.setPower(0);
                     wrist.setPosition(arm_x_left + 0.03);
@@ -107,18 +114,18 @@ public class Controller extends LinearOpMode {
 
             // Arm is currently changing states
             if (arm_state_change) {
-                if (arm_timeout.milliseconds() < 1000) {arm.setPower(0.8);} else {arm.setPower(0);}
+                if (arm_timeout.milliseconds() < 1000) {arm.setPower((1 - arm_timeout.seconds())*0.75);}
+                else                                   {arm.setPower(0);                               } // Arm Y Movement
+                if (arm_timeout.milliseconds() > 500)  {
+                    if (arm_active) {wrist.setPosition(arm_x_left + 0.03);}// Changing from active to inactive
+                    else            {wrist.setPosition(arm_x_center);
+                                     wrist_x = arm_x_center;       } // Changing from inactive to active
+                    arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                } // Move servo after moving arm up
                 if (arm_timeout.milliseconds() > 1500) {
                     arm_active = !arm_active;
                     arm_state_change = false;
                 } // Arm has finished changing state
-                if (arm_active) {
-                    wrist.setPosition(arm_x_left + 0.03);
-                }  // Changing from active to inactive
-                if (!arm_active && arm_timeout.milliseconds() > 500) {
-                    wrist.setPosition(0.5);
-                }  // Changing from inactive to active
-
             } // If the arm is currently changing the state, then hold  the arm up
 
 
@@ -185,7 +192,7 @@ public class Controller extends LinearOpMode {
             telemetry.addData("-- Scoring Device --", "");
             if (arm_active) {
                 telemetry.addData("Arm Power", arm_y);
-                telemetry.addData("Wrist Position", arm_x);
+                telemetry.addData("Wrist Position", wrist_x);
             } else {
                 telemetry.addData("Arm", "LOCKED");
             }
