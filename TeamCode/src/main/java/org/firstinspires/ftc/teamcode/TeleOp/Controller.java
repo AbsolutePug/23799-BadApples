@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
     Written by Robert Maddox (2024) @AbsolutePug (github.com/AbsolutePug)
 */
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp", group="Custom")
+@TeleOp(name="TeleOp", group="Custom")
 public class Controller extends LinearOpMode {
     // Declare OpMode members for each of the 4 motors.
     private final ElapsedTime runtime = new ElapsedTime();
@@ -45,12 +47,12 @@ public class Controller extends LinearOpMode {
         // Input
         Input_brake = gamepad_a && !gamepad_a_last;
         if (gamepad2.right_bumper && !gamepad_right_bumper_last) {
-            if (Input_claw == 1) {Input_claw = 0;}
-            else                 {Input_claw = 1;}
+            if (Input_claw == -1) {Input_claw = 0;}
+            else                 {Input_claw = -1;}
         }
         if (gamepad2.left_bumper && !gamepad_left_bumper_last) {
-            if (Input_claw == -1) {Input_claw = 0;}
-            else                  {Input_claw = -1;}
+            if (Input_claw == 1) {Input_claw = 0;}
+            else                  {Input_claw = 1;}
         }
 
         // Store the input recorded this update
@@ -89,9 +91,6 @@ public class Controller extends LinearOpMode {
         leftBack.setPower(-BL);
         rightBack.setPower(-BR);
     } // "dt" : Drivetrain
-    void armSet(double Power) {
-
-    }
     void autoHang() {
         ElapsedTime hang_timeout = new ElapsedTime();
         hang_timeout.reset();
@@ -127,11 +126,16 @@ public class Controller extends LinearOpMode {
         wrist.scaleRange(0,1);
         claw = hardwareMap.get(CRServo.class, "claw");
 
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
         arm.setDirection(DcMotor.Direction.FORWARD);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Init, Ready for Start!");
@@ -163,8 +167,10 @@ public class Controller extends LinearOpMode {
 
             // Scoring device
             if (arm_active) {
-                arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                arm.setPower(arm_y);
+                double arm_power = arm_y*arm_y;
+                if (-gamepad2.right_stick_y < 0) {arm_power = -arm_power;}
+                arm.setPower(arm_power);
+
                 // Wrist Control
                 if (gamepad2.dpad_left) {wrist_x = arm_x_left;}
                 else if (gamepad2.dpad_right) {wrist_x = arm_x_right;}
@@ -186,26 +192,23 @@ public class Controller extends LinearOpMode {
 
             // Brake Control
             // If engaged the wheels will be locked in place, if not the wheels can be moved freely.
-            if (Input_brake) { // If brake engage button is pressed
-                brake = !brake;
-                if (brake) {
-                    leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                } else {
-                    leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                }
+            if (gamepad1.a) {
+                leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            } else if (gamepad1.b) {
+                leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             }
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
-            double leftFrontPower = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower = axial - lateral + yaw;
-            double rightBackPower = axial + lateral - yaw;
+            double leftFrontPower = axial - lateral - yaw;
+            double rightFrontPower = axial + lateral + yaw;
+            double leftBackPower = axial + lateral - yaw;
+            double rightBackPower = axial - lateral + yaw;
             if (accuracy_mode) {
                 leftFrontPower = leftFrontPower * .5;
                 rightFrontPower = rightFrontPower * .5;
