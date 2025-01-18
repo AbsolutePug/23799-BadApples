@@ -67,17 +67,20 @@ public class Controller extends LinearOpMode {
         arm_busy = true;
 
         while (deploy_timeout.milliseconds() < 1000) {
-            // Beginning
+            // Arm
             if (deploy_timeout.milliseconds() < 500) {
+                Input_claw = -1;
+                claw.setPower(Input_claw);
                 arm.setPower(1);
             } // Move up for first 500ms
             else {
                 arm.setPower(-1);
             } // Move down for 500ms after 500ms
+
             // Servo
             if (deploy_timeout.milliseconds() > 500)  {
-                wrist.setPosition(arm_x_center);
                 wrist_x = arm_x_center;
+                wrist.setPosition(wrist_x);
                 arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             } // Move servo after moving arm up
         }
@@ -152,6 +155,8 @@ public class Controller extends LinearOpMode {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         wrist.setPosition(arm_x_left);
 
+        armDeploy();
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             double max;
@@ -187,17 +192,21 @@ public class Controller extends LinearOpMode {
                 if (gamepad2.b && !arm_busy) {armDeploy();} // Press to deploy arm
             }
 
-            // Accuracy mode. If right stick is more than half way pressed. Enable Accuracy mode (slow-mode)
-            boolean accuracy_mode = trigger > .5;
+            // Speed multiplier. If right trigger is more than half way pressed half the speed output
+            double speed_coefficient;
+            if (trigger > 0.5) {speed_coefficient = 0.5;} else {speed_coefficient = 1;}
 
             // Brake Control
             // If engaged the wheels will be locked in place, if not the wheels can be moved freely.
             if (gamepad1.a) {
+                brake = true;
                 leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            } else if (gamepad1.b) {
+            }
+            else if (gamepad1.b) {
+                brake = false;
                 leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -205,16 +214,10 @@ public class Controller extends LinearOpMode {
             }
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
-            double leftFrontPower = axial - lateral - yaw;
-            double rightFrontPower = axial + lateral + yaw;
-            double leftBackPower = axial + lateral - yaw;
-            double rightBackPower = axial - lateral + yaw;
-            if (accuracy_mode) {
-                leftFrontPower = leftFrontPower * .5;
-                rightFrontPower = rightFrontPower * .5;
-                leftBackPower = leftBackPower * .5;
-                rightBackPower = rightBackPower * .5;
-            } // If accuracy mode is enabled half the set slide_power
+            double leftFrontPower  = (axial - lateral - yaw)*speed_coefficient;
+            double rightFrontPower = (axial + lateral + yaw)*speed_coefficient;
+            double leftBackPower   = (axial + lateral - yaw)*speed_coefficient;
+            double rightBackPower  = (axial - lateral + yaw)*speed_coefficient;
 
             // Normalize the values so no wheel power exceeds 100%. This ensures that the robot maintains the desired motion.
             max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
@@ -239,7 +242,7 @@ public class Controller extends LinearOpMode {
             // Brake Telemetry
             if (brake)  {telemetry.addData("Brake", "Engaged");}
             else        {telemetry.addData("Brake", "Disengaged");}
-            telemetry.addData("Accuracy Mode", accuracy_mode);
+            telemetry.addData("Speed Multiplier", speed_coefficient);
             //
             telemetry.addData("-- Scoring Device --", "");
             if (arm_active) {

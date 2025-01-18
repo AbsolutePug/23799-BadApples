@@ -29,14 +29,12 @@ public class auton extends LinearOpMode {
     final double resolution     = 537.7;
     final double to_rotation    = 1/circumference; // rotations per cm
 
-    String side = "LEFT";
+    enum SIDE {LEFT,RIGHT,UNDEFINED};
+    SIDE starting_pos = SIDE.UNDEFINED;
     boolean back = false;
 
     void resetEncoders() {
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     void dtSetPower(double FL, double FR, double BL, double BR) {
@@ -48,18 +46,27 @@ public class auton extends LinearOpMode {
 
     void move(double FL, double FR, double BL, double BR, double time) {
         ElapsedTime timeout = new ElapsedTime();
+        ElapsedTime accel = new ElapsedTime();
         timeout.reset();
+        accel.reset();
+
         while (!isStopRequested() && timeout.milliseconds() < time) {
             leftFront.setPower(-1*FL);
             rightFront.setPower(-1*FR);
             leftBack.setPower(-1*BL);
             rightBack.setPower(-1*BR);
+            telemetry.addData("timout",timeout.milliseconds() < time);
         }
         leftFront.setPower(0);
         rightFront.setPower(0);
         leftBack.setPower(0);
         rightBack.setPower(0);
     }
+    void setArm(double position) {
+
+    }
+
+    // This is a test method and does not work properly. Do not use
     void Linear(double dist) {
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         double num_points = dist*to_rotation*resolution; // Multiply distance in centimeters to convert to rotations, then convert to the encoder's resolution
@@ -87,10 +94,10 @@ public class auton extends LinearOpMode {
         arm = hardwareMap.get(DcMotor.class, "arm");
         wrist = hardwareMap.get(Servo.class, "wrist");
 
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
         arm.setDirection(DcMotor.Direction.FORWARD);
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -107,17 +114,19 @@ public class auton extends LinearOpMode {
         telemetry.addData("Side", "NOT SET");
         telemetry.addData("Ascent Zone","NOT SET");
         telemetry.update();
+        // SIDE
 
         while (!isStopRequested() && !isStarted()) {
             if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 telemetry.addData("Side", "LEFT");
                 telemetry.update();
-                side = "LEFT";
+                starting_pos = SIDE.LEFT;
+
             }
             if (gamepad1.dpad_right || gamepad2.dpad_right) {
                 telemetry.addData("Side", "RIGHT");
                 telemetry.update();
-                side = "RIGHT";
+                starting_pos = SIDE.RIGHT;
             }
 
             if (gamepad1.dpad_down || gamepad2.dpad_down) {
@@ -132,10 +141,19 @@ public class auton extends LinearOpMode {
             }
         }
 
-
         waitForStart();
         runtime.reset();
 
-        Linear(30);
+
+        if (starting_pos == SIDE.RIGHT) {
+            move(0.1, 0.1, 0.1, 0.1, 100);
+            move(0.2, -0.2, -0.2, 0.2, 900);
+            move(-0.1, - 0.1, -0.1, -0.1, 200);
+        } if (starting_pos == SIDE.LEFT) {
+            sleep(10000);
+            move(0.1, 0.1, 0.1, 0.1, 100);
+            move(0.2, -0.2, -0.2, 0.2, 1500);
+            move(-0.1, -0.1, -0.1, -0.1, 300);
+        }
     }   // end runOpMode()
 }   // end class
