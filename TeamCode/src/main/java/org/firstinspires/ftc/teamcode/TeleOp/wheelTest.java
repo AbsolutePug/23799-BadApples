@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 // This is a simple script to test the drive motors on the robot. This is used to tell if motor directions are set correctly.
 
 @TeleOp(name="Motor Tester", group="Test")
-public class wheeltTest extends LinearOpMode {
+public class wheelTest extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();

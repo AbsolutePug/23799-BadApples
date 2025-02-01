@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 // This is a simple script to test the drive motors on the robot. This is used to tell if motor directions are set correctly.
 
+@Disabled // This code is bad and using drive wheel encoders is stupid
 @TeleOp(name="Encoder Tester", group="Test")
 public class encoderTest extends LinearOpMode {
 

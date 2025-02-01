@@ -1,5 +1,5 @@
 // This code cannot be used as tfod (Tensor Flow Object Detection) has been removed from the FTC SDK as of v1.0.
-// The entirety hsa for the time being been commented out to prevent errors.
+// The entirety has for the time being been commented out to prevent errors.
 /*package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;

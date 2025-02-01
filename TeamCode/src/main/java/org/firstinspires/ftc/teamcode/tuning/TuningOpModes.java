@@ -60,8 +60,8 @@ public final class TuningOpModes {
 
                 List<Encoder> leftEncs = new ArrayList<>(), rightEncs = new ArrayList<>();
                 List<Encoder> parEncs = new ArrayList<>(), perpEncs = new ArrayList<>();
-                parEncs.add(new OtosEncoder(od.otos,false,false, od.leftBack));
-                perpEncs.add(new OtosEncoder(od.otos,true,false, od.leftBack));
+                parEncs.add(new OtosEncoder(od.sensor_otos,false,false, od.leftBack));
+                perpEncs.add(new OtosEncoder(od.sensor_otos,true,false, od.leftBack));
 
                 return new DriveView(
                         DriveType.MECANUM,

@@ -2,15 +2,14 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 /*
-    Written by Robert Maddox (2024) @AbsolutePug (github.com/AbsolutePug)
+    Written by Robert Maddox (2025) @AbsolutePug (github.com/AbsolutePug)
 */
 
-@TeleOp(name="TeleOp", group="Custom")
+@TeleOp(name="TeleOp", group="!Custom")
 public class Controller extends LinearOpMode {
     // Declare OpMode members for each of the 4 motors.
     private final ElapsedTime runtime = new ElapsedTime();
@@ -87,13 +86,13 @@ public class Controller extends LinearOpMode {
         // Arm has finished changing state
         arm_active = true;
         arm_busy = false;
-    }
+    } // Deploy arm into ready position
     void dtSetPower(double FL, double FR, double BL, double BR) {
         leftFront.setPower(-FL);
         rightFront.setPower(-FR);
         leftBack.setPower(-BL);
         rightBack.setPower(-BR);
-    } // "dt" : Drivetrain
+    } // Set the power of each motor
     void autoHang() {
         ElapsedTime hang_timeout = new ElapsedTime();
         hang_timeout.reset();
@@ -105,7 +104,7 @@ public class Controller extends LinearOpMode {
             if (hang_timeout.milliseconds() > 1500 && hang_timeout.milliseconds() < 2500) {
                 dtSetPower(0.5,0.5,0.5,0.5);
             } else {
-                dtSetPower(0,0,0,0);
+                dtSetPower(0.1,0.1,0.1,0.1);
             }
 
             // Arm
@@ -115,7 +114,7 @@ public class Controller extends LinearOpMode {
                 arm.setPower(-1);
             }
         }
-    }
+    } // Completes the ascent procedure
 
     @Override
     public void runOpMode() {

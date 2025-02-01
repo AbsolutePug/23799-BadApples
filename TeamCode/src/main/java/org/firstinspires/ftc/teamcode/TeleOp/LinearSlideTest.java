@@ -40,8 +40,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  Written by Robert Maddox (2024) @AbsolutePug (github.com/AbsolutePug)
  */
 
-@TeleOp(name="Linear Slide Test", group="Test")
 @Disabled
+@TeleOp(name="Linear Slide Test", group="Test")
 public class LinearSlideTest extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();

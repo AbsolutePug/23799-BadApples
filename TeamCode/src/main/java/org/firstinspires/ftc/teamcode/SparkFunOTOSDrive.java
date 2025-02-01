@@ -62,7 +62,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
     }
 
     public static SparkFunOTOSDrive.Params PARAMS = new SparkFunOTOSDrive.Params();
-    public SparkFunOTOSCorrected otos;
+    public SparkFunOTOSCorrected sensor_otos;
     private Pose2d lastOtosPose = pose;
 
     private final DownsampledWriter estimatedPoseWriter = new DownsampledWriter("ESTIMATED_POSE", 50_000_000);
@@ -70,19 +70,19 @@ public class SparkFunOTOSDrive extends MecanumDrive {
     public SparkFunOTOSDrive(HardwareMap hardwareMap, Pose2d pose) {
         super(hardwareMap, pose);
         FlightRecorder.write("OTOS_PARAMS",PARAMS);
-        otos = hardwareMap.get(SparkFunOTOSCorrected.class,"sensor_otos");
+        sensor_otos = hardwareMap.get(SparkFunOTOSCorrected.class,"sensor_otos");
         // RR localizer note:
         // don't change the units, it will stop Dashboard field view from working properly
         // and might cause various other issues
-        otos.setLinearUnit(DistanceUnit.INCH);
-        otos.setAngularUnit(AngleUnit.RADIANS);
+        sensor_otos.setLinearUnit(DistanceUnit.INCH);
+        sensor_otos.setAngularUnit(AngleUnit.RADIANS);
 
-        otos.setOffset(PARAMS.offset);
+        sensor_otos.setOffset(PARAMS.offset);
         System.out.println("OTOS calibration beginning!");
-        System.out.println(otos.setLinearScalar(PARAMS.linearScalar));
-        System.out.println(otos.setAngularScalar(PARAMS.angularScalar));
+        System.out.println(sensor_otos.setLinearScalar(PARAMS.linearScalar));
+        System.out.println(sensor_otos.setAngularScalar(PARAMS.angularScalar));
 
-        otos.setPosition(RRPoseToOTOSPose(pose));
+        sensor_otos.setPosition(RRPoseToOTOSPose(pose));
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
         // will be lost after a power cycle; the OTOS performs a quick calibration
@@ -100,7 +100,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         // this would allow your OpMode code to run while the calibration occurs.
         // However, that may cause other issues.
         // In the future I hope to do that by default and just add a check in updatePoseEstimate for it
-        System.out.println(otos.calibrateImu(255, true));
+        System.out.println(sensor_otos.calibrateImu(255, true));
         System.out.println("OTOS calibration complete!");
     }
     @Override
@@ -113,7 +113,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
             // I don't like this solution at all, but it preserves compatibility.
             // The only alternative is to add getter and setters, but that breaks compat.
             // Potential alternate solution: timestamp the pose set and backtrack it based on speed?
-            otos.setPosition(RRPoseToOTOSPose(pose));
+            sensor_otos.setPosition(RRPoseToOTOSPose(pose));
         }
         // RR localizer note:
         // The values are passed by reference, so we create variables first,
@@ -126,7 +126,7 @@ public class SparkFunOTOSDrive extends MecanumDrive {
         SparkFunOTOS.Pose2D otosPose = new SparkFunOTOS.Pose2D();
         SparkFunOTOS.Pose2D otosVel = new SparkFunOTOS.Pose2D();
         SparkFunOTOS.Pose2D otosAcc = new SparkFunOTOS.Pose2D();
-        otos.getPosVelAcc(otosPose,otosVel,otosAcc);
+        sensor_otos.getPosVelAcc(otosPose,otosVel,otosAcc);
         pose = OTOSPoseToRRPose(otosPose);
         lastOtosPose = pose;
 
