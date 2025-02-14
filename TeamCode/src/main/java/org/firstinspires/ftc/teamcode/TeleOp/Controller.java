@@ -103,8 +103,6 @@ public class Controller extends LinearOpMode {
             // Drive
             if (hang_timeout.milliseconds() > 1500 && hang_timeout.milliseconds() < 2500) {
                 dtSetPower(0.5,0.5,0.5,0.5);
-            } else {
-                dtSetPower(0.1,0.1,0.1,0.1);
             }
 
             // Arm
