@@ -1,6 +1,11 @@
 
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.driver.Auto;
 
+import static com.acmerobotics.roadrunner.ftc.OTOSKt.RRPoseToOTOSPose;
+
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.SparkFunOTOSCorrected;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,8 +13,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Autonomous", group = "!Main")
-public class auton extends LinearOpMode {
+@Autonomous(name = "auto new", group = "!Main")
+public class autonNew extends LinearOpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -21,6 +26,7 @@ public class auton extends LinearOpMode {
     private DcMotor arm = null;
     private Servo wrist = null;
     private CRServo claw = null;
+    private SparkFunOTOSCorrected otos = null;
 
     // Variables
     //enum SIDE {LEFT,RIGHT,UNDEFINED} Not necessary because this season's field is mirrored
@@ -34,6 +40,38 @@ public class auton extends LinearOpMode {
         leftBack.setPower(-BL);
         rightBack.setPower(-BR);
     } // "dt" : Drivetrain // Deprecated
+    void Translate(double TargetX, double TargetY) {
+        Pose2d beginPose = new Pose2d(0, 0, 0);
+        otos.setPosition(RRPoseToOTOSPose(beginPose));
+        double lateral = 0;
+        double axial = 0;
+        while (!isStopRequested()) {
+            pose2d = otos.getPosition();
+            double x = pose2d.x;
+            double y = pose2d.y;
+            telemetry.addData("x", x);
+            telemetry.addData("y", y);
+
+            // Error in X and Y
+            double errorX = TargetX - x;
+            double errorY = TargetY - y;
+
+            // Proportional Control
+            double kP = 0.5; // Tune this value to adjust responsiveness
+
+            axial   = kP * errorY;  // Move forward/backward based on Y error
+            lateral = kP * errorX;  // Move left/right based on X error
+
+            // Ensure motors don't exceed power limits
+            double maxPower = 0.25;
+            leftFront.setPower (Math.max(-maxPower, Math.min(axial - lateral, maxPower)));
+            rightFront.setPower(Math.max(-maxPower, Math.min(axial + lateral, maxPower)));
+            leftBack.setPower  (Math.max(-maxPower, Math.min(axial + lateral, maxPower)));
+            rightBack.setPower (Math.max(-maxPower, Math.min(axial - lateral, maxPower)));
+
+            telemetry.update();
+        }
+    }
 
     void moveAdvanced(double FL, double FR, double BL, double BR, double time) {
         ElapsedTime timeout = new ElapsedTime();
@@ -73,6 +111,8 @@ public class auton extends LinearOpMode {
 
     }
 
+    SparkFunOTOS.Pose2D pose2d = new SparkFunOTOS.Pose2D();
+
     @Override
     public void runOpMode(){
         // Initialize the hardware variables.
@@ -83,6 +123,7 @@ public class auton extends LinearOpMode {
         arm = hardwareMap.get(DcMotor.class, "arm");
         wrist = hardwareMap.get(Servo.class, "wrist");
         claw = hardwareMap.get(CRServo.class, "claw");
+        otos = hardwareMap.get(SparkFunOTOSCorrected.class,"sensor_otos");
 
         wrist.scaleRange(0,1);
 
@@ -108,48 +149,11 @@ public class auton extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        telemetry.addData("WAIT", "NO");
-        telemetry.update();
-        // SIDE
-
-        while (!isStopRequested() && !isStarted()) {
-            if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                telemetry.addData("WAIT", "NO");
-                telemetry.update();
-                wait = false;
-            }
-            if (gamepad1.dpad_up || gamepad2.dpad_up) {
-                telemetry.addData("WAIT", "YES");
-                telemetry.update();
-                wait = true;
-            }
-        }
+        otos.calibrateImu(255, false);
 
         waitForStart();
         runtime.reset();
-        claw.setPower(-1);
+        Translate(1,0);
 
-        if (wait) {
-            sleep(10000);
-        }
-
-        // Move
-        arm.setTargetPosition(5250);
-        wrist.setPosition(0.18);
-        sleep(1000);
-        move(-0.1,1200);
-
-        // Move back
-        sleep(200);
-        move(1,100);
-        claw.setPower(0);
-        arm.setTargetPosition(0);
-        move(1,100);
-
-
-        // Strafe
-        moveAdvanced(-0.1, 0.1, 0.1, -0.1, 3000);
-        sleep(100);
-        move(-0.1,200);
     }   // end runOpMode()
 }   // end class
