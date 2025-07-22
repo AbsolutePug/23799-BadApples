@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.driver.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -7,8 +7,11 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+/*
+ *  Written by Robert Maddox, 2025. @AbsolutePug (github.com/AbsolutePug)
+ */
 
-@Autonomous(name = "Autonomous", group = "!Main")
+@Autonomous(name = "Correct Autonomous", group = "!Main")
 public class auton extends LinearOpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
@@ -23,8 +26,6 @@ public class auton extends LinearOpMode {
     private CRServo claw = null;
 
     // Variables
-    //enum SIDE {LEFT,RIGHT,UNDEFINED} Not necessary because this season's field is mirrored
-    //SIDE starting_pos = SIDE.UNDEFINED;
     boolean wait = false;
 
 
@@ -134,22 +135,25 @@ public class auton extends LinearOpMode {
         }
 
         // Move
+        move(-0.1,450);
         arm.setTargetPosition(5250);
+        sleep(350);
         wrist.setPosition(0.18);
-        sleep(1000);
-        move(-0.1,1200);
+        move(-0.1,1100);
 
         // Move back
-        sleep(200);
+        sleep(1000);
         move(1,100);
         claw.setPower(0);
+        wrist.setPosition(0);
         arm.setTargetPosition(0);
-        move(1,100);
+        sleep(50);
+        move(0.25,250);
 
 
         // Strafe
-        moveAdvanced(-0.1, 0.1, 0.1, -0.1, 3000);
+        moveAdvanced(-0.1, 0.1, 0.1, -0.1, 2500);
         sleep(100);
-        move(-0.1,200);
+        move(0.1,250);
     }   // end runOpMode()
 }   // end class
