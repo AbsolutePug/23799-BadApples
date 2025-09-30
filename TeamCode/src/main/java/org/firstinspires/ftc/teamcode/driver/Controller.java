@@ -21,23 +21,25 @@ public class Controller extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
     private DcMotor rightBack = null;
-    private DcMotor arm = null;
-    private Servo wrist = null;
-    private CRServo claw = null;
-    driveFunction chassis = new driveFunction(
-            hardwareMap.get(DcMotor.class, "leftFront"),
-            hardwareMap.get(DcMotor.class, "leftBack"),
-            hardwareMap.get(DcMotor.class, "rightFront"),
-            hardwareMap.get(DcMotor.class, "rightBack"),
-            hardwareMap.get(DcMotor.class, "arm"),
-            hardwareMap.get(Servo.class, "wrist"),
-            hardwareMap.get(CRServo.class, "claw")
-    ); // horray
-    inputManager inputs = new inputManager(); // Initialize input manager
 
     @Override
     public void runOpMode() {
 
+        // Initialize the robot drive function manager with the correct motors
+        driveFunction chassis = new driveFunction(
+                hardwareMap.get(DcMotor.class, "leftFront"),
+                hardwareMap.get(DcMotor.class, "leftBack"),
+                hardwareMap.get(DcMotor.class, "rightFront"),
+                hardwareMap.get(DcMotor.class, "rightBack"),
+                hardwareMap.get(DcMotor.class, "launcher"),
+                hardwareMap.get(CRServo.class, "mover1"),
+                hardwareMap.get(CRServo.class, "mover2")
+        );
+
+        // Initialize inputs
+        boolean last_gamepad_a = false;
+        boolean last_gamepad_1_right_bumper = false;
+        boolean last_gamepad_2_right_bumper = false;
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Init, Ready for Start!");
@@ -47,11 +49,7 @@ public class Controller extends LinearOpMode {
 
         // Set zero power behaviors
         chassis.setBrakes(true);
-        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        // DEPLOY ARM
-        chassis.armDeploy();
-        chassis.setClaw(-1);
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             double max;
@@ -59,48 +57,27 @@ public class Controller extends LinearOpMode {
             // Controller Inputs
             double axial   = gamepad1.left_stick_y;  // Forward
             double lateral = gamepad1.left_stick_x;  // Strafe
-            double yaw     = gamepad1.right_stick_x; // Turn
+            double yaw     = -gamepad1.right_stick_x; // Turn
             double trigger = gamepad1.right_trigger;  // Right Trigger (Slow-mode)
-            // Scoring device
-            double arm_y   = -gamepad2.right_stick_y; // Up/Down
 
-            // Scoring device
-            double arm_power = arm_y*arm_y; // Exponential arm power
-            if (-gamepad2.right_stick_y < 0) {
-                arm_power = -arm_power;
-            }
-            chassis.setArmPower(arm_power);
-
-            // Wrist Control
-            if (gamepad2.dpad_left)                             {chassis.setWrist(chassis.arm_x_left);  }
-            else if (gamepad2.dpad_right)                       {chassis.setWrist(chassis.arm_x_right); }
-            else if (gamepad2.dpad_up || gamepad2.dpad_down)    {chassis.setWrist(chassis.arm_x_center);}
-
-            // Claw control
-            if (inputs.leftBumperPressed()) {
-                chassis.setClaw(1);
-            }
-            if (inputs.rightBumperPressed()) {
-                chassis.setClaw(-1);
+            // Launcher Control
+            if (gamepad1.right_bumper || gamepad2.right_bumper) {
+                chassis.setLauncher(true);
+            } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
+                chassis.setLauncher(false);
             }
 
-            // Hang
-            if (gamepad2.y) {
-                chassis.autoHang();
-            }
+            chassis.setMover(gamepad1.x || gamepad2.x);
 
             // Speed multiplier. If right trigger is more than half way pressed half the speed output
-            double speed_coefficient;
-            if (trigger > 0.5) {
-                speed_coefficient = 0.5;
-            }
-            else {
-                speed_coefficient = 1;
+            double speed_coefficient = 1;
+            if (trigger > 0.1) {
+                speed_coefficient = 1 - (trigger / 2);
             }
 
             // Brake Control
             // If engaged the wheels will be locked in place, if not the wheels can be moved freely.
-            if (inputs.aPressed()) {
+            if (gamepad1.a  && !last_gamepad_a) {
                 chassis.setBrakes();
             }
 
@@ -129,6 +106,9 @@ public class Controller extends LinearOpMode {
                     rightBackPower
             );
 
+            // Update controller inputs
+            last_gamepad_a = gamepad1.a;
+
             // Basic Telemetry
             telemetry.addData("Status", runtime.toString());
             telemetry.addData("Loop time (ms)", loop_time.milliseconds());
@@ -138,12 +118,7 @@ public class Controller extends LinearOpMode {
             telemetry.addData("Speed Multiplier", speed_coefficient);
             //
             telemetry.addData("-- Scoring Device --", "");
-            if (chassis.getArm()) {
-                telemetry.addData("Arm Power", arm_y);
-                //telemetry.addData("Wrist Position", wrist_x); not storing wrist position anymore
-            } else {
-                telemetry.addData("Arm", "LOCKED");
-            }
+            telemetry.addData("Launcher Active",chassis.getLauncher());
 
             // Misc
             telemetry.addData("-- Misc --", ""); //Divider
@@ -152,8 +127,6 @@ public class Controller extends LinearOpMode {
             telemetry.update();
 
             loop_time.reset();
-
-            inputs.updateInputs();
         }
     }
 }
