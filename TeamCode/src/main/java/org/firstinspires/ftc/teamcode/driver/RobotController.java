@@ -1,45 +1,31 @@
 package org.firstinspires.ftc.teamcode.driver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.driver.util.driveFunction;
-import org.firstinspires.ftc.teamcode.driver.util.inputManager;
 
-/*
- *  Written by Robert Maddox (github.com/AbsolutePug) 2025
+import org.firstinspires.ftc.teamcode.Core.RobotHardware;
+import org.firstinspires.ftc.teamcode.Core.telemetrySophisticated;
+
+/**
+ *  Written by Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
+ *  <p>
+ *  ROBOT Controller
  */
+@TeleOp(name="TeleOp Controller", group="TeleOp")
+public class RobotController extends LinearOpMode {
+    RobotHardware robot = new RobotHardware();
+    telemetrySophisticated telemetryAdvanced = new telemetrySophisticated(telemetry); // Pass telemetry to super awesome version of telemetry. I know how to program
 
-@TeleOp(name="TeleOp", group="!Custom")
-public class Controller extends LinearOpMode {
-    // Declare OpMode members for each of the 4 motors.
+    // Declare OpMode members for each of the motors
     private final ElapsedTime runtime = new ElapsedTime();
     private final ElapsedTime loop_time = new ElapsedTime();
-    private DcMotor leftFront = null;
-    private DcMotor leftBack = null;
-    private DcMotor rightFront = null;
-    private DcMotor rightBack = null;
 
     @Override
     public void runOpMode() {
+        // Create a hardwareMap
 
-        // Initialize the robot drive function manager with the correct motors
-        driveFunction chassis = new driveFunction(
-                hardwareMap.get(DcMotor.class, "leftFront"),
-                hardwareMap.get(DcMotor.class, "leftBack"),
-                hardwareMap.get(DcMotor.class, "rightFront"),
-                hardwareMap.get(DcMotor.class, "rightBack"),
-                hardwareMap.get(DcMotor.class, "launcher"),
-                hardwareMap.get(CRServo.class, "mover1"),
-                hardwareMap.get(CRServo.class, "mover2")
-        );
-
-        // Initialize inputs
-        boolean last_gamepad_a = false;
-        boolean last_gamepad_1_right_bumper = false;
-        boolean last_gamepad_2_right_bumper = false;
+        // Initialize the robot
+        robot.init(hardwareMap);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Init, Ready for Start!");
@@ -48,9 +34,9 @@ public class Controller extends LinearOpMode {
         runtime.reset();
 
         // Set zero power behaviors
-        chassis.setBrakes(true);
+        robot.setBrakes(true);
 
-        // run until the end of the match (driver presses STOP)
+        // Run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             double max;
 
@@ -60,14 +46,26 @@ public class Controller extends LinearOpMode {
             double yaw     = -gamepad1.right_stick_x; // Turn
             double trigger = gamepad1.right_trigger;  // Right Trigger (Slow-mode)
 
-            // Launcher Control
+            // Flywheel Control
             if (gamepad1.right_bumper || gamepad2.right_bumper) {
-                chassis.setLauncher(true);
+                robot.setFlywheel(true);
             } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
-                chassis.setLauncher(false);
+                robot.setFlywheel(false);
             }
 
-            chassis.setMover(gamepad1.x || gamepad2.x);
+            if (robot.getFlywheel()) {
+                if (gamepad1.x || gamepad2.x) {
+                    robot.setGuider(true);
+                } // The guiders should not respond to inputs if the flywheel is inactive
+                else {
+                    robot.setGuider(-0.1);
+                }
+            }
+            else {
+                robot.setGuider(false);
+            }
+
+
 
             // Speed multiplier. If right trigger is more than half way pressed half the speed output
             double speed_coefficient = 1;
@@ -77,8 +75,11 @@ public class Controller extends LinearOpMode {
 
             // Brake Control
             // If engaged the wheels will be locked in place, if not the wheels can be moved freely.
-            if (gamepad1.a  && !last_gamepad_a) {
-                chassis.setBrakes();
+            if (gamepad1.a) {
+                robot.setBrakes(true);
+            }
+            else if (gamepad1.b) {
+                robot.setBrakes(false);
             }
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -99,33 +100,28 @@ public class Controller extends LinearOpMode {
             }
 
             // Send calculated power to wheels
-            chassis.setPower(
+            robot.setPower(
                     leftFrontPower,
                     rightFrontPower,
                     leftBackPower,
                     rightBackPower
             );
 
-            // Update controller inputs
-            last_gamepad_a = gamepad1.a;
-
             // Basic Telemetry
-            telemetry.addData("Status", runtime.toString());
-            telemetry.addData("Loop time (ms)", loop_time.milliseconds());
-            // Brake Telemetry
-            if (chassis.getBrakes())  {telemetry.addData("Brake", "Engaged");}
-            else        {telemetry.addData("Brake", "Disengaged");}
-            telemetry.addData("Speed Multiplier", speed_coefficient);
-            //
-            telemetry.addData("-- Scoring Device --", "");
-            telemetry.addData("Launcher Active",chassis.getLauncher());
+            telemetry.addData           ("Status", runtime.toString());
+            telemetry.addData           ("Loop time (ms)", loop_time.milliseconds());
+            telemetry.addData           ("\uD83C\uDDE8\u200C\uD83C\uDDED\u200C\uD83C\uDDE6\u200C\uD83C\uDDF8\u200C\uD83C\uDDF8\u200C\uD83C\uDDEE\u200C\uD83C\uDDF8\u200C", ""); // "Chassis"
+            telemetryAdvanced.addBoolean("Brakes", robot.getBrakes());
+            telemetryAdvanced.addPercent("Speed Multiplier", speed_coefficient);
+
+            telemetry.addData           ("\uD83C\uDDF8\u200C\uD83C\uDDE8\u200C\uD83C\uDDF4\u200C\uD83C\uDDF7\u200C\uD83C\uDDEE\u200C\uD83C\uDDF3\u200C\uD83C\uDDEC\u200C \uD83C\uDDE9\u200C\uD83C\uDDEA\u200C\uD83C\uDDFB\u200C\uD83C\uDDEE\u200C\uD83C\uDDE8\u200C\uD83C\uDDEA\u200C", ""); // "Scoring device"
+            telemetryAdvanced.addPercent("Flywheel Ready", robot.getFlywheelTime());
 
             // Misc
-            telemetry.addData("-- Misc --", ""); //Divider
+            telemetry.addData("\uD83C\uDDEA\u200C\uD83C\uDDFD\u200C\uD83C\uDDF9\u200C\uD83C\uDDF7\u200C\uD83C\uDDE6\u200C", ""); //Divider
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
-
             loop_time.reset();
         }
     }
