@@ -26,12 +26,16 @@ public class RobotHardware {
     private boolean brakes = false; // Whether the brakes is set to be false: motors will coast, or true: robot wheels will be locked with zero power
     ElapsedTime flywheel_time = new ElapsedTime(); // How long the flywheel has been active, used to determine if the motor has reached top speed
 
+    public double front_left_dir = 1;
+    public double front_right_dir = -1;
+    public double back_left_dir = 1;
+    public double back_right_dir = -1;
+
     /**
      * Initialize the RobotHardware by using the ROBOT's {@link com.qualcomm.robotcore.hardware.HardwareMap}
      * @param hwMap ROBOT's {@link com.qualcomm.robotcore.hardware.HardwareMap} for the OpMode
      */
     public void init(HardwareMap hwMap) {
-        //DcMotor driveLF, DcMotor driveRF, DcMotor driveLB, DcMotor driveRB, DcMotor launcher, CRServo guider1, CRServo guider2
         leftFront = hwMap.get(DcMotor.class, "leftFront");
         rightFront = hwMap.get(DcMotor.class, "rightFront");
         leftBack = hwMap.get(DcMotor.class, "leftBack");
@@ -40,18 +44,13 @@ public class RobotHardware {
         this.guider1 = hwMap.get(CRServo.class, "mover1");
         this.guider2 = hwMap.get(CRServo.class, "mover2");
 
-        leftFront.setDirection(DcMotor.Direction.REVERSE); // THESE DIRECTION SETTINGS WORK FOR THIS YEARS ROBOT
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
-        flywheel.setDirection(DcMotor.Direction.REVERSE);
-
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
 
+        flywheel.setDirection(DcMotor.Direction.REVERSE);
+    }
     /**
      * Set each wheel's power
      * @param FL Front Left power
@@ -61,10 +60,10 @@ public class RobotHardware {
      */
     public void setPower(double FL, double FR, double BL, double BR) {
         if (robot_active) {
-            leftFront.setPower(FL);
-            rightFront.setPower(FR);
-            leftBack.setPower(BL);
-            rightBack.setPower(BR);
+            leftFront.setPower(FL*front_left_dir);
+            rightFront.setPower(FR*front_right_dir);
+            leftBack.setPower(BL*back_left_dir);
+            rightBack.setPower(BR*back_right_dir);
         }
     } // Set the power of each motor
 
