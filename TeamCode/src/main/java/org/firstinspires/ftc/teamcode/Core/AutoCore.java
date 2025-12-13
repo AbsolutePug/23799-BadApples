@@ -7,15 +7,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class AutoCore extends RobotHardware {
     private double easeOutQuad(double x) {
         return 1 - (1 - x) * (1 - x);
-    } // TODO: This should probably be moves somewhere else but its not necessary right now
+    } // This should probably be moved somewhere else but its not necessary right now
 
 /**
  * Move within an x, y range for a given time
- * @param x
- * @param y
+ * @param x speed to move left/right relative to the ROBOT's position
+ * @param y speed to move forward relative to the ROBOT's position
  * @param time (milliseconds)
  */
-public void move(double x, double y, double time) {
+    public void move(double x, double y, double time) {
         ElapsedTime timeout = new ElapsedTime();
         while (timeout.milliseconds() < time) {
             double speed = easeOutQuad(timeout.milliseconds()/time);
@@ -26,9 +26,9 @@ public void move(double x, double y, double time) {
             double back_left    = (-y+x)*speed;
             double back_right   = (-y-x)*speed;
 
-            setPower(front_left,front_right,back_left,back_right);
-        }
-        setPower(0,0,0,0);
+            setPowers(front_left,front_right,back_left,back_right);
+            }
+        setPowers(0,0,0,0);
     }
 }
 

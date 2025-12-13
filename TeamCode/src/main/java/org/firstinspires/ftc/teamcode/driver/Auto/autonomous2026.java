@@ -12,23 +12,24 @@ import org.firstinspires.ftc.teamcode.Core.RobotHardware;
 public class autonomous2026 extends LinearOpMode {
     AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();
+    enum startingPosition{LEFT,RIGHT,UNDEFINED}
 
     @Override
     public void runOpMode(){
         autonomous.init(hardwareMap);
+        startingPosition side = startingPosition.UNDEFINED;
 
-        String side = "NONE";
-        telemetry.addData("SIDE", "NONE");
+        telemetry.addData("SIDE", side.name());
         telemetry.update();
         while (!isStopRequested() && !isStarted()) {
             if (gamepad1.dpad_left) {
-                side = "LEFT";
-                telemetry.addData("SIDE", "LEFT");
+                side = startingPosition.LEFT;
+                telemetry.addData("SIDE", side.name());
                 break;
             }
             if (gamepad1.dpad_right) {
-                side = "RIGHT";
-                telemetry.addData("SIDE", "RIGHT");
+                side = startingPosition.RIGHT;
+                telemetry.addData("SIDE", side.name());
                 break;
             }
 
@@ -36,14 +37,20 @@ public class autonomous2026 extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        autonomous.setBrakes(true);
+        autonomous.setBrakes(RobotHardware.Brake.ENGAGED); // set the desired default state for brakes
 
-        if (side == "RIGHT") {
-            autonomous.move(0.5,0.5,1900);
-        } else if (side == "LEFT") {
-            autonomous.move(-0.5,0.5,1900);
+        switch (side) {
+            case LEFT:
+                autonomous.move(0,1,1000);
+                break;
+            case RIGHT:
+                autonomous.move(0,1,1000);
+                break;
+            default:
+                autonomous.move(0,1,3000);
         }
 
-        sleep(1000);
+
+        sleep(2000);
     } // end runOpMode()
 }
