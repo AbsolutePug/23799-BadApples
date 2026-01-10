@@ -5,11 +5,10 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 /**
- * Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
+ * Written by <a href="https://github.com/AbsolutePug">AbsolutePug</a> 2025
  * <p>
  * This stores all the ROBOT's possible functions for utilization on the TeleOp and Autonomous
  */
@@ -24,21 +23,27 @@ public class RobotHardware {
     private DcMotorEx flywheel_2;
     // Scoring Device
     private DcMotor intake;
-    private Servo blocker;
-    private CRServo feeder_1;
-    private CRServo feeder_2;
+    private Servo channel;
+    private CRServo launcher_1;
+    private CRServo launcher_2;
     // Extra
     private boolean robot_active = true; // Whether the bot can be operated by controls, used for some automatic override
     private boolean flywheel_active = false;
+    private Flywheel flywheel_state = Flywheel.OFF;
+    public enum Flywheel {
+        OFF,
+        SHORT,
+        FAR
+    }
     public enum Brake {
         ENGAGED,
         DISENGAGED
     } // Valid brake states
     public Brake brake_state = Brake.DISENGAGED; // This is the default state of any motor
-    ElapsedTime flywheel_time = new ElapsedTime(); // How long the flywheel has been active, used to determine if the motor has reached top speed
 
-    public final double LAUNCHER_TARGET_VELOCITY = 1350; //Target velocity for far goal
-    public final double LAUNCHER_MIN_VELOCITY = 1325; // Minimum velocity to shoot
+    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1400; //Target velocity for far goal
+    public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1100; //Target velocity for far goal
+    public final double FLYWHEEL_MIN_VELOCITY = 900; // Minimum velocity to shoot
 
     /**
      * Initialize the RobotHardware by using the ROBOT's {@link com.qualcomm.robotcore.hardware.HardwareMap}
@@ -53,9 +58,9 @@ public class RobotHardware {
         flywheel_1= hwMap.get(DcMotorEx.class, "launcher1");
         flywheel_2 = hwMap.get(DcMotorEx.class, "launcher2");
         intake = hwMap.get(DcMotor.class, "intake");
-        blocker = hwMap.get(Servo.class, "blocker");
-        feeder_1 = hwMap.get(CRServo.class, "guider_1");
-        feeder_2 = hwMap.get(CRServo.class, "guider_2");
+        channel = hwMap.get(Servo.class, "blocker");
+        launcher_1 = hwMap.get(CRServo.class, "guider_1");
+        launcher_2 = hwMap.get(CRServo.class, "guider_2");
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -73,8 +78,8 @@ public class RobotHardware {
         flywheel_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        feeder_1.setDirection(CRServo.Direction.FORWARD);
-        feeder_2.setDirection(CRServo.Direction.REVERSE);
+        launcher_1.setDirection(CRServo.Direction.FORWARD);
+        launcher_2.setDirection(CRServo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
     }
 
@@ -126,33 +131,44 @@ public class RobotHardware {
         return (brake_state == Brake.ENGAGED);
     }
     // Flywheel
-    public void setFlywheel(boolean isOn) {
-        if (isOn) {
-            flywheel_1.setVelocity(LAUNCHER_TARGET_VELOCITY);
-            flywheel_2.setVelocity(-LAUNCHER_TARGET_VELOCITY);
-            flywheel_time.reset();
-            flywheel_active = true;
-        } else {
-            flywheel_1.setVelocity(0);
-            flywheel_2.setVelocity(0);
-            flywheel_active = false;
+    public void setFlywheel(Flywheel new_state) {
+        flywheel_state = new_state;
+        switch (new_state) {
+            case FAR:
+                flywheel_1.setVelocity(FLYWHEEL_TARGET_VELOCITY_FAR);
+                flywheel_2.setVelocity(-FLYWHEEL_TARGET_VELOCITY_FAR);
+                break;
+            case SHORT:
+                flywheel_1.setVelocity(FLYWHEEL_TARGET_VELOCITY_SHORT);
+                flywheel_2.setVelocity(-FLYWHEEL_TARGET_VELOCITY_SHORT);
+                break;
+            case OFF:
+                flywheel_1.setVelocity(0);
+                flywheel_2.setVelocity(0);
+                break;
         }
     }
     public void setFlywheel() {
-        setFlywheel(!getFlywheel());
+        setFlywheel(Flywheel.OFF);
     }
-    public boolean getFlywheel() {
-        return flywheel_active;
+    public Flywheel getFlywheel() {
+        return flywheel_state;
     }
     public boolean getFlywheelReady() {
-        return ((flywheel_1.getVelocity() >= LAUNCHER_MIN_VELOCITY) && (flywheel_2.getVelocity() >= LAUNCHER_MIN_VELOCITY));
+        return ((flywheel_1.getVelocity() >= FLYWHEEL_MIN_VELOCITY) && (-flywheel_2.getVelocity() >= FLYWHEEL_MIN_VELOCITY));
     }
     public double getFlywheelVelocity() {
         return Math.min(flywheel_1.getVelocity(), flywheel_2.getVelocity());
     }
-    public double getFlywheelMaxVelocity() {
-        return LAUNCHER_MIN_VELOCITY;
-    } // i think this could be static
+    public double getFlywheelMinVelocity() {
+        switch (flywheel_state) {
+            case FAR:
+                return  FLYWHEEL_TARGET_VELOCITY_FAR;
+            case SHORT:
+                return  FLYWHEEL_TARGET_VELOCITY_SHORT;
+        }
+        return 0;
+    }
     // Intake
     public void setIntake(boolean state) {
         if (state) {
@@ -165,26 +181,26 @@ public class RobotHardware {
         intake.setPower(power);
     }
     // Feeder
-    public void setFeeder(boolean state) {
+    public void setLauncher(boolean state) {
         if (state) {
-            feeder_1.setPower(1);
-            feeder_2.setPower(1);
+            launcher_1.setPower(1);
+            launcher_2.setPower(1);
         } else {
-            feeder_1.setPower(0);
-            feeder_2.setPower(0);
+            launcher_1.setPower(0);
+            launcher_2.setPower(0);
         }
     }
-    public void setFeeder(double power) {
-        feeder_1.setPower(power);
-        feeder_2.setPower(power);
+    public void setLauncher(double power) {
+        launcher_1.setPower(power);
+        launcher_2.setPower(power);
     }
     // Blocker
-    public void setBlocker(double pos) {
-        blocker.setPosition(pos);
+    public void setChannel(double pos) {
+        channel.setPosition(pos);
     }
     public void setBlocker(boolean state) { // unfinished
         if (state) {
-            blocker.setPosition(0);
+            channel.setPosition(0);
         }
     }
 }

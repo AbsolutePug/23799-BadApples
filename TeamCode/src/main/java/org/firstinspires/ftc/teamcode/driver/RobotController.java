@@ -34,48 +34,44 @@ public class RobotController extends LinearOpMode {
 
         // Run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            double max;
-
             // Controller Inputs
             double axial   = gamepad1.left_stick_y;     // Forward
             double lateral = gamepad1.left_stick_x;     // Strafe
             double yaw     = gamepad1.right_stick_x;    // Turn
             double trigger = gamepad1.right_trigger;    // Right Trigger (Slow-mode)
-            boolean flywheel_on = gamepad2.right_bumper;
             boolean flywheel_off = gamepad2.left_bumper;
-            boolean feeder = gamepad2.x;
+            boolean flywheel_short = gamepad2.b;
+            boolean flywheel_far = gamepad2.y;
+            boolean launcher = gamepad2.x;
             boolean intake = gamepad2.a;
-            boolean blocker_left = gamepad2.dpad_left;
-            boolean blocker_right = gamepad2.dpad_right;
+            boolean channel_left = gamepad2.dpad_left;
+            boolean channel_right = gamepad2.dpad_right;
             boolean brakes_on = gamepad1.a;
             boolean brakes_off = gamepad1.b;
 
             // Flywheel Control
-            if (flywheel_on) {
-                robot.setFlywheel(true);
+            if (flywheel_far) {
+                robot.setFlywheel(RobotHardware.Flywheel.FAR);
+            }
+            else if (flywheel_short) {
+                robot.setFlywheel(RobotHardware.Flywheel.SHORT);
             }
             else if (flywheel_off) {
-                robot.setFlywheel(false);
+                robot.setFlywheel(RobotHardware.Flywheel.OFF);
             }
 
             // Feeder
-            robot.setFeeder(feeder);
+            robot.setLauncher(launcher);
 
             // Intake
             robot.setIntake(intake);
 
 
-            // Blocker
-            if (blocker_left) {
-                robot.setBlocker(0.4);
-            } else if (blocker_right) {
-                robot.setBlocker(0.6);
-            }
-
-            // Speed multiplier. If right trigger is more than half way pressed half the motor power output
-            double numerator = 1;
-            if (trigger > 0.1) {
-                numerator = 1 - (trigger / 2);
+            // Channel
+            if (channel_left) {
+                robot.setChannel(0.59);
+            } else if (channel_right) {
+                robot.setChannel(0.33);
             }
 
             // Brake Control
@@ -87,23 +83,18 @@ public class RobotController extends LinearOpMode {
                 robot.setBrakes(RobotHardware.Brake.DISENGAGED);
             }
 
-            double denominator = Math.max(Math.abs(axial) + Math.abs(lateral) + Math.abs(yaw), 1);
+            // Speed multiplier
+            double numerator = 1;
+            if (trigger > 0.1) {
+                numerator = 1 - (trigger / 2);
+            }
+
+            double denominator = Math.max(Math.abs(axial) + Math.abs(lateral) + Math.abs(yaw), 1); // i stole this from a gm0 guide and i like it better because it fits on one line
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             double leftFrontPower  = (axial - lateral - yaw)*numerator/denominator;
             double rightFrontPower = (axial + lateral + yaw)*numerator/denominator;
             double leftBackPower   = (axial + lateral - yaw)*numerator/denominator;
             double rightBackPower  = (axial - lateral + yaw)*numerator/denominator;
-
-            // Normalize the values so no wheel power exceeds 100%. This ensures that the robot maintains the desired motion.
-            max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-            max = Math.max(max, Math.abs(leftBackPower));
-            max = Math.max(max, Math.abs(rightBackPower));
-            if (max > 1.0) {
-                leftFrontPower /= max;
-                rightFrontPower /= max;
-                leftBackPower /= max;
-                rightBackPower /= max;
-            }
 
             // Send calculated power to wheels
             robot.setPowers(
@@ -123,7 +114,7 @@ public class RobotController extends LinearOpMode {
 
             telemetry.addData           (toBoldString("SCORING DEVICE"), "");
             telemetry.addData           ("Flywheel Velocity Raw", robot.getFlywheelVelocity());
-            telemetry.addData("Flywheel Ready", toStringPercent(robot.getFlywheelVelocity()/robot.getFlywheelMaxVelocity()));
+            telemetry.addData("Flywheel Ready", toStringPercent(robot.getFlywheelVelocity()/robot.getFlywheelMinVelocity()));
 
             telemetry.addData           (toBoldString("EXTRA"), "");
             telemetry.addData           ("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);

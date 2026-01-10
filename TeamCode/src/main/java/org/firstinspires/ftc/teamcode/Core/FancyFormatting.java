@@ -16,7 +16,7 @@ public class FancyFormatting {
     private static final String unicode_red = "\uD83D\uDFE5";
     private static final String unicode_a = "\uD83C\uDDE6";
     private static final String unicode_b = "\uD83C\uDDE7";
-    private static final String unicode_c = "\uD83C\uDDE8"; // \uD83C\uDDE8
+    private static final String unicode_c = "\uD83C\uDDE8";
     private static final String unicode_d = "\uD83C\uDDE9";
     private static final String unicode_e = "\uD83C\uDDEA";
     private static final String unicode_f = "\uD83C\uDDEB";
@@ -40,7 +40,7 @@ public class FancyFormatting {
     private static final String unicode_x = "\uD83C\uDDFD";
     private static final String unicode_y = "\uD83C\uDDFE";
     private static final String unicode_z = "\uD83C\uDDFF";
-    private static final String unicode_zwnj = "\u200C";
+    private static final String unicode_zwnj = "\u200C"; // used to prevent regional indicators from forming a flag (their entire purpose)
 
 
     /**
@@ -86,67 +86,72 @@ public class FancyFormatting {
         }
         return out;
     }
+
+    /**
+     * @param in Character to make bolder
+     * @return a unicode for a regional indicator with the same character
+     */
     public static String toBoldChar(char in) {
-        in = Character.toLowerCase(in);
-         switch (in) {
-             case 'a':
-                return unicode_a;
-             case 'b':
-                 return unicode_b;
-             case 'c':
-                 return unicode_c;
-             case 'd':
-                 return unicode_d;
-             case 'e':
-                 return unicode_e;
-             case 'f':
-                 return unicode_f;
-             case 'g':
-                 return unicode_g;
-             case 'h':
-                 return unicode_h;
-             case 'i':
-                 return unicode_i;
-             case 'j':
-                 return unicode_j;
-             case 'k':
-                 return unicode_k;
-             case 'l':
-                 return unicode_l;
-             case 'm':
-                 return unicode_m;
-             case 'n':
-                 return unicode_n;
-             case 'o':
-                 return unicode_o;
-             case 'p':
-                 return unicode_p;
-             case 'q':
-                 return unicode_q;
-             case 'r':
-                 return unicode_r;
-             case 's':
-                 return unicode_s;
-             case 't':
-                 return unicode_t;
-             case 'u':
-                 return unicode_u;
-             case 'v':
-                 return unicode_v;
-             case 'w':
-                 return unicode_w;
-             case 'x':
-                 return unicode_x;
-             case 'y':
-                 return unicode_y;
-             case 'z':
-                 return unicode_z;
-             case ' ':
-                 return "   ";
-             default:
-                 return "？";
-         }
-    }
+            in = Character.toLowerCase(in);
+             switch (in) {
+                 case 'a':
+                    return unicode_a;
+                 case 'b':
+                     return unicode_b;
+                 case 'c':
+                     return unicode_c;
+                 case 'd':
+                     return unicode_d;
+                 case 'e':
+                     return unicode_e;
+                 case 'f':
+                     return unicode_f;
+                 case 'g':
+                     return unicode_g;
+                 case 'h':
+                     return unicode_h;
+                 case 'i':
+                     return unicode_i;
+                 case 'j':
+                     return unicode_j;
+                 case 'k':
+                     return unicode_k;
+                 case 'l':
+                     return unicode_l;
+                 case 'm':
+                     return unicode_m;
+                 case 'n':
+                     return unicode_n;
+                 case 'o':
+                     return unicode_o;
+                 case 'p':
+                     return unicode_p;
+                 case 'q':
+                     return unicode_q;
+                 case 'r':
+                     return unicode_r;
+                 case 's':
+                     return unicode_s;
+                 case 't':
+                     return unicode_t;
+                 case 'u':
+                     return unicode_u;
+                 case 'v':
+                     return unicode_v;
+                 case 'w':
+                     return unicode_w;
+                 case 'x':
+                     return unicode_x;
+                 case 'y':
+                     return unicode_y;
+                 case 'z':
+                     return unicode_z;
+                 case ' ':
+                     return "   ";
+                 default:
+                     return "？";
+             }
+        }
 
 
 

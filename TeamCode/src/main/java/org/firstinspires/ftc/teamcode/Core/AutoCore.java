@@ -31,9 +31,3 @@ public class AutoCore extends RobotHardware {
         setPowers(0,0,0,0);
     }
 }
-
-
-// FL: axial - lateral - yaw)
-// FR: axial + lateral + yaw)
-// BL: axial + lateral - yaw)
-// BR: axial - lateral + yaw)

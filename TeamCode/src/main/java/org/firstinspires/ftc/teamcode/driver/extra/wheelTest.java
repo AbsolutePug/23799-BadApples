@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 /**
- * Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
+ * Written by <a href="https://github.com/AbsolutePug">AbsolutePug</a> 2025
  * Simple OpMode to determine the correct drive motor directions
  */
 @TeleOp(name="Motor Tester", group="Test")
@@ -51,22 +51,22 @@ public class wheelTest extends LinearOpMode {
             double power = .25;
 
             if (up) {
+                leftFront.setPower(power);
+                rightFront.setPower(power);
+                leftBack.setPower(power);
+                rightBack.setPower(power);
+            }
+            if (down) {
                 leftFront.setPower(-power);
                 rightFront.setPower(-power);
                 leftBack.setPower(-power);
                 rightBack.setPower(-power);
             }
-            if (down) {
-                leftFront.setPower(power);
-                rightFront.setPower(power);
-                leftBack.setPower(power);
-                rightBack.setPower(power);
-            }
             if (right) {
-                leftFront.setPower(power);
-                rightFront.setPower(power);
-                leftBack.setPower(power);
-                rightBack.setPower(power);
+                leftFront.setPower(0);
+                rightFront.setPower(0);
+                leftBack.setPower(0);
+                rightBack.setPower(0);
             }
             telemetry.addData("Status", "Running forward");
         }

@@ -9,10 +9,10 @@ import org.firstinspires.ftc.teamcode.Core.AutoCore;
 import org.firstinspires.ftc.teamcode.Core.RobotHardware;
 
 @Autonomous(name = "Autonomous Basic", group = "Basic")
-public class autonomous2026 extends LinearOpMode {
+public class AutoBasic extends LinearOpMode {
     AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();
-    enum startingPosition{LEFT,RIGHT,UNDEFINED}
+    enum startingPosition{FRONT,BACK,UNDEFINED}
 
     @Override
     public void runOpMode(){
@@ -23,12 +23,12 @@ public class autonomous2026 extends LinearOpMode {
         telemetry.update();
         while (!isStopRequested() && !isStarted()) {
             if (gamepad1.dpad_left) {
-                side = startingPosition.LEFT;
+                side = startingPosition.FRONT;
                 telemetry.addData("SIDE", side.name());
                 break;
             }
             if (gamepad1.dpad_right) {
-                side = startingPosition.RIGHT;
+                side = startingPosition.BACK;
                 telemetry.addData("SIDE", side.name());
                 break;
             }
@@ -40,10 +40,10 @@ public class autonomous2026 extends LinearOpMode {
         autonomous.setBrakes(RobotHardware.Brake.ENGAGED); // set the desired default state for brakes
 
         switch (side) {
-            case LEFT:
+            case FRONT:
                 autonomous.move(0,1,1000);
                 break;
-            case RIGHT:
+            case BACK:
                 autonomous.move(0,1,1000);
                 break;
             default:
