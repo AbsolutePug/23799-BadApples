@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Core;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
 /**
@@ -41,7 +45,10 @@ public class RobotHardware {
     } // Valid brake states
     public Brake brake_state = Brake.DISENGAGED; // This is the default state of any motor
 
-    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1400; //Target velocity for far goal
+    // Gyro
+    private IMU imu;
+
+    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1500; //Target velocity for far goal OLD: 1400
     public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1100; //Target velocity for far goal
     public final double FLYWHEEL_MIN_VELOCITY = 900; // Minimum velocity to shoot
 
@@ -81,6 +88,15 @@ public class RobotHardware {
         launcher_1.setDirection(CRServo.Direction.FORWARD);
         launcher_2.setDirection(CRServo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
+    }
+    public void initGyro(HardwareMap hwMap) {
+        imu = hwMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot robot_orientation = new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+        );
+
+        imu.initialize(new IMU.Parameters(robot_orientation));
     }
 
     /**
@@ -135,18 +151,19 @@ public class RobotHardware {
         flywheel_state = new_state;
         switch (new_state) {
             case FAR:
-                flywheel_1.setVelocity(FLYWHEEL_TARGET_VELOCITY_FAR);
-                flywheel_2.setVelocity(-FLYWHEEL_TARGET_VELOCITY_FAR);
+                setFlywheel(FLYWHEEL_TARGET_VELOCITY_FAR);
                 break;
             case SHORT:
-                flywheel_1.setVelocity(FLYWHEEL_TARGET_VELOCITY_SHORT);
-                flywheel_2.setVelocity(-FLYWHEEL_TARGET_VELOCITY_SHORT);
+                setFlywheel(FLYWHEEL_TARGET_VELOCITY_SHORT);
                 break;
             case OFF:
-                flywheel_1.setVelocity(0);
-                flywheel_2.setVelocity(0);
+                setFlywheel(0);
                 break;
         }
+    }
+    public void setFlywheel(double target_velocity) {
+        flywheel_1.setVelocity(target_velocity);
+        flywheel_2.setVelocity(-target_velocity);
     }
     public void setFlywheel() {
         setFlywheel(Flywheel.OFF);
@@ -202,5 +219,13 @@ public class RobotHardware {
         if (state) {
             channel.setPosition(0);
         }
+    }
+
+    // Sensors
+    public double getHeading() {
+        return -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+    }
+    public void resetHeading() {
+        imu.resetYaw();
     }
 }
