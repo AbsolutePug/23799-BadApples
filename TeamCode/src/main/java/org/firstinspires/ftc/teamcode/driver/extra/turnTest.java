@@ -1,13 +1,12 @@
 
 package org.firstinspires.ftc.teamcode.driver.extra;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Core.AutoCore;
-import org.firstinspires.ftc.teamcode.Core.RobotHardware;
+import org.firstinspires.ftc.teamcode.Core.RobotFunctionCore;
 
 @TeleOp(name = "Turn Test", group = "Basic")
 public class turnTest extends LinearOpMode {
@@ -20,7 +19,7 @@ public class turnTest extends LinearOpMode {
         autonomous.initGyro(hardwareMap);
         waitForStart();
         telemetry.addData("Runtime",runtime.milliseconds());
-        autonomous.setBrakes(RobotHardware.Brake.ENGAGED); // set the desired state for brakes
+        autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
 
 
 

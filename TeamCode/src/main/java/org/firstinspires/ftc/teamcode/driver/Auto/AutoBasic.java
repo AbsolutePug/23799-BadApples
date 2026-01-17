@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Core.AutoCore;
-import org.firstinspires.ftc.teamcode.Core.RobotHardware;
+import org.firstinspires.ftc.teamcode.Core.RobotFunctionCore;
 
 @Autonomous(name = "Autonomous Basic", group = "Basic")
 public class AutoBasic extends LinearOpMode {
@@ -37,7 +37,7 @@ public class AutoBasic extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        autonomous.setBrakes(RobotHardware.Brake.ENGAGED); // set the desired default state for brakes
+        autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired default state for brakes
 
         switch (side) {
             case FRONT:

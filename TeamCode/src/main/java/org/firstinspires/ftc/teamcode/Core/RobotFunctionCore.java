@@ -16,29 +16,36 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * <p>
  * This stores all the ROBOT's possible functions for utilization on the TeleOp and Autonomous
  */
-public class RobotHardware {
+public class RobotFunctionCore {
 
     // Drive motors
     private DcMotor leftFront;
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
-    private DcMotorEx flywheel_1;
-    private DcMotorEx flywheel_2;
+
     // Scoring Device
     private DcMotor intake;
     private Servo channel;
-    private CRServo launcher_1;
-    private CRServo launcher_2;
-    // Extra
-    private boolean robot_active = true; // Whether the bot can be operated by controls, used for some automatic override
-    private boolean flywheel_active = false;
-    private Flywheel flywheel_state = Flywheel.OFF;
-    public enum Flywheel {
+    private CRServo launcher_right;
+    private CRServo launcher_left;
+    private DcMotorEx flywheel_1;
+    private DcMotorEx flywheel_2;
+    private int flywheel_1_velocity = 0;
+    private int flywheel_2_velocity = 0; // TODO: use one method call to update velocities, decreases loop time
+    private FlywheelSpeed flywheel_state = FlywheelSpeed.OFF;
+    public enum FlywheelSpeed {
         OFF,
         SHORT,
         FAR
-    }
+    } // Flywheel target velocities
+    public enum Intake {
+        OFF,
+        ON,
+        REBUKE
+    } // Intake settings
+    // Extra
+    private boolean robot_active = true; // Whether the bot can be operated by controls, used for some automatic override
     public enum Brake {
         ENGAGED,
         DISENGAGED
@@ -48,9 +55,8 @@ public class RobotHardware {
     // Gyro
     private IMU imu;
 
-    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1500; //Target velocity for far goal OLD: 1400
-    public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1100; //Target velocity for far goal
-    public final double FLYWHEEL_MIN_VELOCITY = 900; // Minimum velocity to shoot
+    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1500; // Target velocity for far goal
+    public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1050; // Target velocity for far goal
 
     /**
      * Initialize the RobotHardware by using the ROBOT's {@link com.qualcomm.robotcore.hardware.HardwareMap}
@@ -66,8 +72,8 @@ public class RobotHardware {
         flywheel_2 = hwMap.get(DcMotorEx.class, "launcher2");
         intake = hwMap.get(DcMotor.class, "intake");
         channel = hwMap.get(Servo.class, "blocker");
-        launcher_1 = hwMap.get(CRServo.class, "guider_1");
-        launcher_2 = hwMap.get(CRServo.class, "guider_2");
+        launcher_right = hwMap.get(CRServo.class, "guider_1");
+        launcher_left = hwMap.get(CRServo.class, "guider_2");
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -85,8 +91,8 @@ public class RobotHardware {
         flywheel_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        launcher_1.setDirection(CRServo.Direction.FORWARD);
-        launcher_2.setDirection(CRServo.Direction.REVERSE);
+        launcher_right.setDirection(CRServo.Direction.FORWARD);
+        launcher_left.setDirection(CRServo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
     }
     public void initGyro(HardwareMap hwMap) {
@@ -122,7 +128,8 @@ public class RobotHardware {
             case ENGAGED:
                 leftFront   .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 rightFront  .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                leftBack    .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);rightBack   .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                leftBack    .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                rightBack   .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 brake_state = Brake.ENGAGED;
                 break;
             case DISENGAGED:
@@ -147,7 +154,7 @@ public class RobotHardware {
         return (brake_state == Brake.ENGAGED);
     }
     // Flywheel
-    public void setFlywheel(Flywheel new_state) {
+    public void setFlywheel(FlywheelSpeed new_state) {
         flywheel_state = new_state;
         switch (new_state) {
             case FAR:
@@ -166,13 +173,16 @@ public class RobotHardware {
         flywheel_2.setVelocity(-target_velocity);
     }
     public void setFlywheel() {
-        setFlywheel(Flywheel.OFF);
+        setFlywheel(FlywheelSpeed.OFF);
     }
-    public Flywheel getFlywheel() {
+    public FlywheelSpeed getFlywheel() {
         return flywheel_state;
     }
     public boolean getFlywheelReady() {
-        return ((flywheel_1.getVelocity() >= FLYWHEEL_MIN_VELOCITY) && (-flywheel_2.getVelocity() >= FLYWHEEL_MIN_VELOCITY));
+        return ((flywheel_1.getVelocity() >= getFlywheelVelocity()) && (-flywheel_2.getVelocity() >= getFlywheelVelocity()));
+    }
+    public double getFlywheelReadyAsDecimal() {
+        return (flywheel_1.getVelocity()+flywheel_2.getVelocity())/2 / getFlywheelMinVelocity();
     }
     public double getFlywheelVelocity() {
         return Math.min(flywheel_1.getVelocity(), flywheel_2.getVelocity());
@@ -194,24 +204,48 @@ public class RobotHardware {
             intake.setPower(0);
         }
     }
-    public void setIntake(double power) {
-        intake.setPower(power);
+    public void setIntake(Intake new_state) {
+        switch (new_state) {
+            case ON:
+                intake.setPower(1);
+                break;
+            case REBUKE:
+                intake.setPower(-1);
+                break;
+            default:
+                intake.setPower(0);
+                break;
+        }
     }
-    // Feeder
+    public void setIntake(double power) {
+    }
+    // Launcher
     public void setLauncher(boolean state) {
         if (state) {
-            launcher_1.setPower(1);
-            launcher_2.setPower(1);
+            launcher_right.setPower(1);
+            launcher_left.setPower(1);
         } else {
-            launcher_1.setPower(0);
-            launcher_2.setPower(0);
+            launcher_right.setPower(0);
+            launcher_left.setPower(0);
+        }
+    }
+    public void setLauncher(boolean state_left, boolean state_right) {
+        if (state_left) {
+            launcher_left.setPower(1);
+        } else {
+            launcher_left.setPower(0);
+        }
+        if (state_right) {
+            launcher_right.setPower(1);
+        } else {
+            launcher_right.setPower(0);
         }
     }
     public void setLauncher(double power) {
-        launcher_1.setPower(power);
-        launcher_2.setPower(power);
+        launcher_right.setPower(power);
+        launcher_left.setPower(power);
     }
-    // Blocker
+    // Blocker NOTE: I think we arent using this anymore
     public void setChannel(double pos) {
         channel.setPosition(pos);
     }
@@ -220,7 +254,6 @@ public class RobotHardware {
             channel.setPosition(0);
         }
     }
-
     // Sensors
     public double getHeading() {
         return -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);

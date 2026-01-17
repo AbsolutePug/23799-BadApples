@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.Core;
 
-import com.qualcomm.robotcore.robot.Robot;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Extends functionality of RobotHardware for scheduled actions during autonomous
  */
-public class AutoCore extends RobotHardware {
+public class AutoCore extends RobotFunctionCore {
     private boolean actionStopped = false;
 
     private void cancelAction() {
@@ -18,21 +18,21 @@ public class AutoCore extends RobotHardware {
 
 /**
  * Move within an x, y range for a given time
- * @param x speed to move left/right relative to the ROBOT's position
- * @param y speed to move forward relative to the ROBOT's position
+ * @param speed_laterally speed to move left/right relative to the ROBOT's position
+ * @param speed_axially speed to move forward relative to the ROBOT's position
  * @param time (milliseconds)
  */
-    public void move(double x, double y, double time) {
+    public void move(double speed_laterally, double speed_axially, double time) {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
         while (timeout.milliseconds() < time && !actionStopped) {
             double speed = easeOutQuad(timeout.milliseconds()/time);
             speed = Math.min(speed,1); // Normalize
 
-            double front_left   = (-y-x)*speed;
-            double front_right  = (-y+x)*speed;
-            double back_left    = (-y+x)*speed;
-            double back_right   = (-y-x)*speed;
+            double front_left   = (-speed_axially-speed_laterally)*speed;
+            double front_right  = (-speed_axially+speed_laterally)*speed;
+            double back_left    = (-speed_axially+speed_laterally)*speed;
+            double back_right   = (-speed_axially-speed_laterally)*speed;
 
             setPowers(front_left,front_right,back_left,back_right);
         }
@@ -41,15 +41,23 @@ public class AutoCore extends RobotHardware {
     public void shoot() {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
-        while (timeout.milliseconds() < 10000 && !actionStopped) {
-            setLauncher(true);
+        while (timeout.milliseconds() < 3000 && !actionStopped) {
+            setLauncher(true,false);
+        }
+        timeout.reset();
+        while (timeout.milliseconds() < 1000) {
+            setLauncher(false,false);
+        }
+        timeout.reset();
+        while (timeout.milliseconds() < 3000 && !actionStopped) {
+            setLauncher(false,true);
         }
         setLauncher(false);
     }
     public void turn(double target_angle) {
         actionStopped = false;
         resetHeading();
-        double tolerance = 5;
+        double tolerance = 3;
         double target_a = target_angle - tolerance;
         double target_b = target_angle + tolerance;
 
@@ -60,6 +68,15 @@ public class AutoCore extends RobotHardware {
                 setPowers(0.2,-0.2,0.2,-0.2);
             }
             if (actionStopped) break;
+        }
+    }
+    public void waitUntilFlywheelIsReady() {
+        actionStopped = false;
+        while (!getFlywheelReady() && !actionStopped) {
+            ElapsedTime timeout = new ElapsedTime();
+            while (timeout.milliseconds() < 100 && !actionStopped) {
+                // TODO: finish this
+            }
         }
     }
 }
