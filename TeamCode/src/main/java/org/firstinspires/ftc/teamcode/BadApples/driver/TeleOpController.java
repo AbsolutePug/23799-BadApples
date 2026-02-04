@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.driver;
+package org.firstinspires.ftc.teamcode.BadApples.driver;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import static org.firstinspires.ftc.teamcode.Core.FancyFormatting.*;
-
-import org.firstinspires.ftc.teamcode.Core.RobotFunctionCore;
+import static org.firstinspires.ftc.teamcode.BadApples.Core.FancyFormatting.*;
+import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 
 /**
  *  Written by Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
@@ -86,6 +87,13 @@ public class TeleOpController extends OpMode {
                 leftBackPower,
                 rightBackPower
         );
+        // FTC Dashboard TODO: this is a simplified implementation
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("Flywheel Velocity", robot.getFlywheelVelocity());
+        packet.put("Flywheel Min Velocity", robot.getFlywheelMinVelocity());
+        packet.put("Flywheel Ready", robot.getFlywheelReady());
+        packet.put("Looptime", loop_time.milliseconds());
+        robot.dashboard.sendTelemetryPacket(packet);
 
         // Basic Telemetry
         telemetry.addData           ("Status", runtime.toString());
@@ -104,5 +112,6 @@ public class TeleOpController extends OpMode {
         telemetry.addData           ("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.update();
         loop_time.reset();
+        robot.updateSensors();
     }
 }

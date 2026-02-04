@@ -1,12 +1,12 @@
 
-package org.firstinspires.ftc.teamcode.driver.Auto;
+package org.firstinspires.ftc.teamcode.BadApples.driver.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Core.AutoCore;
-import org.firstinspires.ftc.teamcode.Core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
+import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 
 @Autonomous(name = "Autonomous Basic", group = "Basic")
 public class AutoBasic extends LinearOpMode {

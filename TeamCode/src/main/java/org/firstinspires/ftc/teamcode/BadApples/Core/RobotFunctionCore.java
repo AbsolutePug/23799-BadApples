@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.Core;
+package org.firstinspires.ftc.teamcode.BadApples.Core;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -52,11 +53,15 @@ public class RobotFunctionCore {
     } // Valid brake states
     public Brake brake_state = Brake.DISENGAGED; // This is the default state of any motor
 
-    // Gyro
+    // Sensors
     private IMU imu;
 
-    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1500; // Target velocity for far goal
+    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1450; // Target velocity for far goal
     public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1050; // Target velocity for far goal
+    public double FLYWHEEL_1_VELOCITY = 0;
+    public double FLYWHEEL_2_VELOCITY = 0;
+    public double IMU_YAW;
+    public FtcDashboard dashboard;
 
     /**
      * Initialize the RobotHardware by using the ROBOT's {@link com.qualcomm.robotcore.hardware.HardwareMap}
@@ -94,6 +99,8 @@ public class RobotFunctionCore {
         launcher_right.setDirection(CRServo.Direction.FORWARD);
         launcher_left.setDirection(CRServo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
+
+        dashboard = FtcDashboard.getInstance();
     }
     public void initGyro(HardwareMap hwMap) {
         imu = hwMap.get(IMU.class, "imu");
@@ -179,13 +186,13 @@ public class RobotFunctionCore {
         return flywheel_state;
     }
     public boolean getFlywheelReady() {
-        return ((flywheel_1.getVelocity() >= getFlywheelVelocity()) && (-flywheel_2.getVelocity() >= getFlywheelVelocity()));
+        return (getFlywheelVelocity() < getFlywheelMinVelocity()+50 && getFlywheelVelocity() > getFlywheelMinVelocity()-50);
     }
     public double getFlywheelReadyAsDecimal() {
-        return (flywheel_1.getVelocity()+flywheel_2.getVelocity())/2 / getFlywheelMinVelocity();
+        return (FLYWHEEL_1_VELOCITY+FLYWHEEL_2_VELOCITY)/2 / getFlywheelMinVelocity();
     }
     public double getFlywheelVelocity() {
-        return Math.min(flywheel_1.getVelocity(), flywheel_2.getVelocity());
+        return (Math.abs(FLYWHEEL_1_VELOCITY) + Math.abs(FLYWHEEL_2_VELOCITY))/2;
     }
     public double getFlywheelMinVelocity() {
         switch (flywheel_state) {
@@ -256,9 +263,14 @@ public class RobotFunctionCore {
     }
     // Sensors
     public double getHeading() {
-        return -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        return IMU_YAW;
     }
     public void resetHeading() {
         imu.resetYaw();
+    }
+    public void updateSensors() {
+        FLYWHEEL_1_VELOCITY = flywheel_1.getVelocity();
+        FLYWHEEL_2_VELOCITY = flywheel_2.getVelocity();
+        IMU_YAW = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 }

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.driver.extra;
+package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 
 // This is a simple script to test the drive motors on the robot. This is used to tell if motor directions are set correctly.
 

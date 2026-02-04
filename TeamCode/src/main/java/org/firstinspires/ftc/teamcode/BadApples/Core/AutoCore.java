@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.Core;
+package org.firstinspires.ftc.teamcode.BadApples.Core;
 
-import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Extends functionality of RobotHardware for scheduled actions during autonomous
  */
 public class AutoCore extends RobotFunctionCore {
+    public enum TeamColor {RED, BLUE}
     private boolean actionStopped = false;
 
     private void cancelAction() {
@@ -13,7 +13,7 @@ public class AutoCore extends RobotFunctionCore {
     }
 
     private double easeOutQuad(double x) {
-        return 1 - (1 - x) * (1 - x);
+        return Math.min(1 - (1 - x) * (1 - x),1);
     } // This should probably be moved somewhere else but its not necessary right now
 
 /**
@@ -61,11 +61,16 @@ public class AutoCore extends RobotFunctionCore {
         double target_a = target_angle - tolerance;
         double target_b = target_angle + tolerance;
 
-        while (getHeading() <= Math.min(target_a, target_b) || getHeading() >= Math.max(target_a, target_b)) { // pick whichever target bound is the lower and whichever target is the higher to compare
+        while (getHeading() <= Math.min(target_a, target_b) || getHeading() >= Math.max(target_a, target_b)) { // pick whichever target bound is the lower and whichever target is the higher to compare to check if outside desired value
+
+            // The desired speed = difference between the target and current heading
+            double speed = Math.abs((target_angle - getHeading())/10);
+            speed = Math.min(speed, 1);
+            speed = Math.max(speed, 0.1);
             if (getHeading() < target_angle) {
-                setPowers(-0.2,0.2,-0.2,0.2);
+                setPowers(-0.3*speed,0.3*speed,-0.3*speed,0.3*speed);
             } else {
-                setPowers(0.2,-0.2,0.2,-0.2);
+                setPowers(0.3*speed,-0.3*speed,0.3*speed,-0.3*speed);
             }
             if (actionStopped) break;
         }
@@ -73,9 +78,10 @@ public class AutoCore extends RobotFunctionCore {
     public void waitUntilFlywheelIsReady() {
         actionStopped = false;
         while (!getFlywheelReady() && !actionStopped) {
+            // this is bad but idc right now if it works
             ElapsedTime timeout = new ElapsedTime();
             while (timeout.milliseconds() < 100 && !actionStopped) {
-                // TODO: finish this
+
             }
         }
     }
