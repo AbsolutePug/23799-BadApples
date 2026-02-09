@@ -60,7 +60,7 @@ public class RobotFunctionCore {
     public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1050; // Target velocity for far goal
     public double FLYWHEEL_1_VELOCITY = 0;
     public double FLYWHEEL_2_VELOCITY = 0;
-    public double IMU_YAW;
+    public double IMU_YAW = 0;
     public FtcDashboard dashboard;
 
     /**
@@ -271,6 +271,8 @@ public class RobotFunctionCore {
     public void updateSensors() {
         FLYWHEEL_1_VELOCITY = flywheel_1.getVelocity();
         FLYWHEEL_2_VELOCITY = flywheel_2.getVelocity();
+    }
+    public void updateGyro() {
         IMU_YAW = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 }
