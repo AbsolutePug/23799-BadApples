@@ -19,9 +19,6 @@ android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
     packagingOptions {
-        jniLibs {
-            pickFirsts += ['**/*.so']
-        }
         jniLibs.useLegacyPackaging true
     }
 }
@@ -37,5 +34,9 @@ repositories {
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation "com.acmerobotics.dashboard:dashboard:0.5.1"
+
+    implementation "com.acmerobotics.roadrunner:core:1.0.1"
+    implementation "com.acmerobotics.roadrunner:actions:1.0.1"
+    implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
+    implementation "page.j5155.roadrunner:ftc-otos:0.1.14+0.3.1"
 }
