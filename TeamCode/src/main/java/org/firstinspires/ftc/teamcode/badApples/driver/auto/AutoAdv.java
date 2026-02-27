@@ -1,21 +1,19 @@
 
-package org.firstinspires.ftc.teamcode.BadApples.driver.Auto;
+package org.firstinspires.ftc.teamcode.badApples.driver.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore.TeamColor;
+import org.firstinspires.ftc.teamcode.badApples.core.AutoCore;
+import org.firstinspires.ftc.teamcode.badApples.core.AutoCore.StartingLocation;
+import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.AutoCore.TeamColor;
 
 @Autonomous(name = "Autonomous: Launch preloaded, pre-aimed", group = "Auto")
 public class AutoAdv extends LinearOpMode {
-    AutoCore autonomous = new AutoCore();
-    LocalizationCore localization = new LocalizationCore();
+    final AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();
-    enum StartingLocation {BIG_TRIANGLE, SMALL_TRIANGLE,UNDEFINED}
 
 
     @Override

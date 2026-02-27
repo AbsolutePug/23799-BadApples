@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.BadApples.Core;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+package org.firstinspires.ftc.teamcode.badApples.core;
 
 /**
  * Written by <a href="https://github.com/AbsolutePug">Robert Maddox</a> 2025

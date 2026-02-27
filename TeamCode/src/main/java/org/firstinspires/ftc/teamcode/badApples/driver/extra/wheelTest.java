@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
+package org.firstinspires.ftc.teamcode.badApples.driver.extra;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

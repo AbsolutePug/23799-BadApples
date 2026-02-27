@@ -1,15 +1,13 @@
-package org.firstinspires.ftc.teamcode.BadApples.Core;
-
-import com.qualcomm.robotcore.robot.Robot;
+package org.firstinspires.ftc.teamcode.badApples.core;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
 /**
  * Extends functionality of RobotHardware for scheduled actions during autonomous
  */
 public class AutoCore extends RobotFunctionCore {
-    public LocalizationCore localization = new LocalizationCore();
+    final public LocalizationCore localization = new LocalizationCore();
 
     public enum TeamColor {RED, BLUE}
+    public enum StartingLocation {BIG_TRIANGLE, SMALL_TRIANGLE}
     private boolean actionStopped = false;
 
     private void cancelAction() {

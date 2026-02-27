@@ -1,16 +1,14 @@
-package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
+package org.firstinspires.ftc.teamcode.badApples.driver.extra;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.LocalizationCore;
+import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
 
 @Autonomous(name="Gyro Tester", group="Test")
 public class gyroTest extends OpMode {
-    RobotFunctionCore robot = new RobotFunctionCore();
-    LocalizationCore localization = new LocalizationCore();
+    final RobotFunctionCore robot = new RobotFunctionCore();
+    final LocalizationCore localization = new LocalizationCore();
 
     public void init() {
         localization.initGyro(hardwareMap);

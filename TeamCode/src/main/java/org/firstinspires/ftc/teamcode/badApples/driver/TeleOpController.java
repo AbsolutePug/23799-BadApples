@@ -1,11 +1,10 @@
-package org.firstinspires.ftc.teamcode.BadApples.driver;
-import com.acmerobotics.dashboard.FtcDashboard;
+package org.firstinspires.ftc.teamcode.badApples.driver;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import static org.firstinspires.ftc.teamcode.BadApples.Core.FancyFormatting.*;
-import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
+import static org.firstinspires.ftc.teamcode.badApples.core.FancyFormatting.*;
+import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
 
 /**
  *  Written by Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
@@ -14,7 +13,7 @@ import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
  */
 @TeleOp(name="TeleOp Controller", group="TeleOp")
 public class TeleOpController extends OpMode {
-    RobotFunctionCore robot = new RobotFunctionCore();
+    final RobotFunctionCore robot = new RobotFunctionCore();
 
     // Declare OpMode members for each of the motors
     private final ElapsedTime runtime = new ElapsedTime();
@@ -92,7 +91,7 @@ public class TeleOpController extends OpMode {
         packet.put("Flywheel Velocity", robot.getFlywheelVelocity());
         packet.put("Flywheel Min Velocity", robot.getFlywheelMinVelocity());
         packet.put("Flywheel Ready", robot.getFlywheelReady());
-        packet.put("Looptime", loop_time.milliseconds());
+        packet.put("Loop time", loop_time.milliseconds());
         robot.dashboard.sendTelemetryPacket(packet);
 
         // Basic Telemetry

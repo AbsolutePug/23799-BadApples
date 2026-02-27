@@ -1,15 +1,11 @@
-package org.firstinspires.ftc.teamcode.BadApples.Core;
+package org.firstinspires.ftc.teamcode.badApples.core;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.IMU;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
 /**
@@ -32,8 +28,6 @@ public class RobotFunctionCore {
     private CRServo launcher_left;
     private DcMotorEx flywheel_1;
     private DcMotorEx flywheel_2;
-    private int flywheel_1_velocity = 0;
-    private int flywheel_2_velocity = 0; // TODO: use one method call to update velocities, decreases loop time
     private FlywheelSpeed flywheel_state = FlywheelSpeed.OFF;
     public enum FlywheelSpeed {
         OFF,
@@ -212,6 +206,7 @@ public class RobotFunctionCore {
         }
     }
     public void setIntake(double power) {
+        intake.setPower(power);
     }
     // Launcher
     public void setLauncher(boolean state) {

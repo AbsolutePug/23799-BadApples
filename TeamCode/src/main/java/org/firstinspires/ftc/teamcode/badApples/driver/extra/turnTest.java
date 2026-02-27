@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
+package org.firstinspires.ftc.teamcode.badApples.driver.extra;
 
 import static android.os.SystemClock.sleep;
 
@@ -7,13 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
-import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.AutoCore;
+import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
 
 @Autonomous(name = "Turn Test", group = "Basic")
 public class turnTest extends OpMode {
-    AutoCore autonomous = new AutoCore();
+    final AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();
 
     public void init() {
