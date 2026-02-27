@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import static org.firstinspires.ftc.teamcode.BadApples.Core.FancyFormatting.*;
 
+@Disabled
 @TeleOp(name="Formatting Test", group="Debug")
 public class formattingTest extends LinearOpMode {
     @Override

@@ -54,13 +54,10 @@ public class RobotFunctionCore {
     public Brake brake_state = Brake.DISENGAGED; // This is the default state of any motor
 
     // Sensors
-    private IMU imu;
-
-    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1450; // Target velocity for far goal
+    public final double FLYWHEEL_TARGET_VELOCITY_FAR = 1400; // Target velocity for far goal
     public final double FLYWHEEL_TARGET_VELOCITY_SHORT = 1050; // Target velocity for far goal
     public double FLYWHEEL_1_VELOCITY = 0;
     public double FLYWHEEL_2_VELOCITY = 0;
-    public double IMU_YAW = 0;
     public FtcDashboard dashboard;
 
     /**
@@ -102,16 +99,6 @@ public class RobotFunctionCore {
 
         dashboard = FtcDashboard.getInstance();
     }
-    public void initGyro(HardwareMap hwMap) {
-        imu = hwMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot robot_orientation = new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
-        );
-
-        imu.initialize(new IMU.Parameters(robot_orientation));
-    }
-
     /**
      * Set each wheel's power
      * @param FL Front Left power
@@ -262,17 +249,8 @@ public class RobotFunctionCore {
         }
     }
     // Sensors
-    public double getHeading() {
-        return IMU_YAW;
-    }
-    public void resetHeading() {
-        imu.resetYaw();
-    }
     public void updateSensors() {
         FLYWHEEL_1_VELOCITY = flywheel_1.getVelocity();
         FLYWHEEL_2_VELOCITY = flywheel_2.getVelocity();
-    }
-    public void updateGyro() {
-        IMU_YAW = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 }

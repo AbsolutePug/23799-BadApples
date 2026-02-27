@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.BadApples.Core;
 
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
 /**
  * Extends functionality of RobotHardware for scheduled actions during autonomous
  */
 public class AutoCore extends RobotFunctionCore {
+    public LocalizationCore localization = new LocalizationCore();
+
     public enum TeamColor {RED, BLUE}
     private boolean actionStopped = false;
 
     private void cancelAction() {
         actionStopped = true;
-    }
+    } // stop a looping action prematurely
 
     private double easeOutQuad(double x) {
         return Math.min(1 - (1 - x) * (1 - x),1);
@@ -54,33 +58,64 @@ public class AutoCore extends RobotFunctionCore {
         }
         setLauncher(false);
     }
+    public void shootLeft() {
+        actionStopped = false;
+        ElapsedTime timeout = new ElapsedTime();
+        while (timeout.milliseconds() < 2000 && !actionStopped) {
+            setLauncher(true,false);
+        }
+        while (timeout.milliseconds() < 1000) {
+            setLauncher(false,false);
+        }
+        while (timeout.milliseconds() < 2000 && !actionStopped) {
+            setLauncher(true,false);
+        }
+        setLauncher(false);
+    }
+    public void shootRight() {
+        actionStopped = false;
+        ElapsedTime timeout = new ElapsedTime();
+        while (timeout.milliseconds() < 2000 && !actionStopped) {
+            setLauncher(false,true);
+        }
+        while (timeout.milliseconds() < 1000) {
+            setLauncher(false,false);
+        }
+        while (timeout.milliseconds() < 2000 && !actionStopped) {
+            setLauncher(false,true);
+        }
+        setLauncher(false);
+    }
     public void turn(double target_angle) {
         actionStopped = false;
-        resetHeading();
+        localization.resetHeading();
         double tolerance = 3;
         double target_a = target_angle - tolerance;
         double target_b = target_angle + tolerance;
 
-        while (getHeading() <= Math.min(target_a, target_b) || getHeading() >= Math.max(target_a, target_b)) { // pick whichever target bound is the lower and whichever target is the higher to compare to check if outside desired value
+        while (localization.getHeading() <= Math.min(target_a, target_b) || localization.getHeading() >= Math.max(target_a, target_b)) { // pick whichever target bound is the lower and whichever target is the higher to compare to check if outside desired value
+            localization.updateGyro();
 
             // The desired speed = difference between the target and current heading
-            double speed = Math.abs((target_angle - getHeading())/10);
+            double speed = Math.abs((target_angle - localization.getHeading())/10);
             speed = Math.min(speed, 1);
             speed = Math.max(speed, 0.1);
-            if (getHeading() < target_angle) {
+
+            if (localization.getHeading() < target_angle) {
                 setPowers(-0.3*speed,0.3*speed,-0.3*speed,0.3*speed);
             } else {
                 setPowers(0.3*speed,-0.3*speed,0.3*speed,-0.3*speed);
             }
             if (actionStopped) break;
         }
+        setPowers(0,0,0,0);
     }
     public void waitUntilFlywheelIsReady() {
         actionStopped = false;
         while (!getFlywheelReady() && !actionStopped) {
             // this is bad but idc right now if it works
             ElapsedTime timeout = new ElapsedTime();
-            while (timeout.milliseconds() < 100 && !actionStopped) {
+            while (timeout.milliseconds() < 1000) {
 
             }
         }

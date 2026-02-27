@@ -6,12 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
+import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
 import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore.TeamColor;
 
-@Autonomous(name = "Autonomous Advanced", group = "Basic")
+@Autonomous(name = "Autonomous: Launch preloaded, pre-aimed", group = "Auto")
 public class AutoAdv extends LinearOpMode {
     AutoCore autonomous = new AutoCore();
+    LocalizationCore localization = new LocalizationCore();
     private final ElapsedTime runtime = new ElapsedTime();
     enum StartingLocation {BIG_TRIANGLE, SMALL_TRIANGLE,UNDEFINED}
 
@@ -19,7 +21,7 @@ public class AutoAdv extends LinearOpMode {
     @Override
     public void runOpMode(){
         autonomous.init(hardwareMap);
-        autonomous.initGyro(hardwareMap);
+        autonomous.localization.initGyro(hardwareMap);
         StartingLocation starting_location = StartingLocation.SMALL_TRIANGLE;
         TeamColor team_color = TeamColor.RED;
         double team_color_coefficient = 1; // Invert movements

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
 import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 
-@Autonomous(name = "Autonomous Basic", group = "Basic")
+@Autonomous(name = "Autonomous: Move outside zone only", group = "Auto")
 public class AutoBasic extends LinearOpMode {
     AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();

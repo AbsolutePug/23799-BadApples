@@ -1,23 +1,33 @@
 
 package org.firstinspires.ftc.teamcode.BadApples.driver.extra;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import static android.os.SystemClock.sleep;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BadApples.Core.AutoCore;
+import org.firstinspires.ftc.teamcode.BadApples.Core.LocalizationCore;
 import org.firstinspires.ftc.teamcode.BadApples.Core.RobotFunctionCore;
 
-@TeleOp(name = "Turn Test", group = "Basic")
-public class turnTest extends LinearOpMode {
+@Autonomous(name = "Turn Test", group = "Basic")
+public class turnTest extends OpMode {
     AutoCore autonomous = new AutoCore();
     private final ElapsedTime runtime = new ElapsedTime();
 
-    @Override
-    public void runOpMode(){
+    public void init() {
         autonomous.init(hardwareMap);
-        autonomous.initGyro(hardwareMap);
-        waitForStart();
+        autonomous.localization.initGyro(hardwareMap);
+    }
+
+    public void loop() {
+        telemetry.addData("Heading",autonomous.localization.getHeading());
+        telemetry.update();
+    }
+
+    @Override
+    public void start() {
         telemetry.addData("Runtime",runtime.milliseconds());
         autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
 
