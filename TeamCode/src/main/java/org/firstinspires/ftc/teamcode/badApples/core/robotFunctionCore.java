@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * <p>
  * This stores all the ROBOT's possible functions for utilization on the TeleOp and Autonomous
  */
-public class RobotFunctionCore {
+public class robotFunctionCore {
 
     // Drive motors
     private DcMotor leftFront;
@@ -244,7 +244,7 @@ public class RobotFunctionCore {
         }
     }
     // Sensors
-    public void updateSensors() {
+    public void updateEncoders() {
         FLYWHEEL_1_VELOCITY = flywheel_1.getVelocity();
         FLYWHEEL_2_VELOCITY = flywheel_2.getVelocity();
     }

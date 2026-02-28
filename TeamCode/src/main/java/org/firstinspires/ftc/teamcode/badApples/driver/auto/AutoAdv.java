@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.badApples.core.AutoCore;
 import org.firstinspires.ftc.teamcode.badApples.core.AutoCore.StartingLocation;
-import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.robotFunctionCore;
 import org.firstinspires.ftc.teamcode.badApples.core.AutoCore.TeamColor;
 
 @Autonomous(name = "Autonomous: Launch preloaded, pre-aimed", group = "Auto")
@@ -63,28 +63,28 @@ public class AutoAdv extends LinearOpMode {
         }
         telemetry.clearAll();
         telemetry.addData("Runtime",runtime.milliseconds());
-        autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
+        autonomous.setBrakes(robotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
 
         switch (starting_location) {
             case SMALL_TRIANGLE:
-                autonomous.setFlywheel(RobotFunctionCore.FlywheelSpeed.FAR);
+                autonomous.setFlywheel(robotFunctionCore.FlywheelSpeed.FAR);
                 autonomous.setIntake(true);
                 autonomous.move(0,0.25,1500);
                 autonomous.waitUntilFlywheelIsReady();
                 autonomous.shoot();
 
-                autonomous.setFlywheel(RobotFunctionCore.FlywheelSpeed.OFF);
+                autonomous.setFlywheel(robotFunctionCore.FlywheelSpeed.OFF);
                 autonomous.setIntake(false);
                 autonomous.move(0,1,700);
                 break;
             case BIG_TRIANGLE: // TODO: make it good!
-                autonomous.setFlywheel(RobotFunctionCore.FlywheelSpeed.SHORT);
+                autonomous.setFlywheel(robotFunctionCore.FlywheelSpeed.SHORT);
                 autonomous.setIntake(true);
                 autonomous.move(0,-0.25,3000);
                 autonomous.waitUntilFlywheelIsReady();
                 autonomous.shoot();
-
                 autonomous.turn(45);
+                autonomous.move(-1*team_color_coefficient,0, 1000);
                 break;
         }
     } // end runOpMode()

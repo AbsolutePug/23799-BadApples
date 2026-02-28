@@ -3,8 +3,9 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import static org.firstinspires.ftc.teamcode.badApples.core.FancyFormatting.*;
-import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
+
+import org.firstinspires.ftc.teamcode.badApples.core.FancyFormatting;
+import org.firstinspires.ftc.teamcode.badApples.core.robotFunctionCore;
 
 /**
  *  Written by Written by <a href="https://github.com/AbsolutePug">Robert Maddox (AbsolutePug)</a> 2025
@@ -13,7 +14,8 @@ import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
  */
 @TeleOp(name="TeleOp Controller", group="TeleOp")
 public class TeleOpController extends OpMode {
-    final RobotFunctionCore robot = new RobotFunctionCore();
+    final robotFunctionCore robot = new robotFunctionCore();
+    final FancyFormatting format = new FancyFormatting();
 
     // Declare OpMode members for each of the motors
     private final ElapsedTime runtime = new ElapsedTime();
@@ -27,8 +29,8 @@ public class TeleOpController extends OpMode {
         telemetry.addData("Status", "Init, Ready for Start!");
         telemetry.update();
 
-        robot.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired default state for brakes
-        robot.setIntake(RobotFunctionCore.Intake.OFF);
+        robot.setBrakes(robotFunctionCore.Brake.ENGAGED); // set the desired default state for brakes
+        robot.setIntake(robotFunctionCore.Intake.OFF);
         runtime.reset();
     }
 
@@ -49,22 +51,22 @@ public class TeleOpController extends OpMode {
         boolean button_brakes_off = gamepad1.b;
 
         // Flywheel Control
-        if (button_flywheel_far) robot.setFlywheel(RobotFunctionCore.FlywheelSpeed.FAR);
-        else if (button_flywheel_short) robot.setFlywheel(RobotFunctionCore.FlywheelSpeed.SHORT);
-        else if (button_flywheel_off) robot.setFlywheel(RobotFunctionCore.FlywheelSpeed.OFF);
+        if (button_flywheel_far) robot.setFlywheel(robotFunctionCore.FlywheelSpeed.FAR);
+        else if (button_flywheel_short) robot.setFlywheel(robotFunctionCore.FlywheelSpeed.SHORT);
+        else if (button_flywheel_off) robot.setFlywheel(robotFunctionCore.FlywheelSpeed.OFF);
 
         // Launcher
         robot.setLauncher(button_launcher_left,button_launcher_right);
 
         // Intake
-        if (button_intake_on) robot.setIntake(RobotFunctionCore.Intake.ON);
-        else if (button_intake_rebuke) robot.setIntake(RobotFunctionCore.Intake.REBUKE);
-        else robot.setIntake(RobotFunctionCore.Intake.OFF);
+        if (button_intake_on) robot.setIntake(robotFunctionCore.Intake.ON);
+        else if (button_intake_rebuke) robot.setIntake(robotFunctionCore.Intake.REBUKE);
+        else robot.setIntake(robotFunctionCore.Intake.OFF);
 
         // Brake Control
         // If engaged the wheels will be locked in place, if not the wheels can be moved freely.
-        if (button_brakes_on) robot.setBrakes(RobotFunctionCore.Brake.ENGAGED);
-        else if (button_brakes_off) robot.setBrakes(RobotFunctionCore.Brake.DISENGAGED);
+        if (button_brakes_on) robot.setBrakes(robotFunctionCore.Brake.ENGAGED);
+        else if (button_brakes_off) robot.setBrakes(robotFunctionCore.Brake.DISENGAGED);
 
         // Speed multiplier
         double numerator = 1;
@@ -98,19 +100,19 @@ public class TeleOpController extends OpMode {
         telemetry.addData           ("Status", runtime.toString());
         telemetry.addData           ("Loop time (ms)", loop_time.milliseconds());
 
-        telemetry.addData           (toBoldString("CHASSIS"), "");
-        telemetry.addData           ("Brakes", toStringBoolColored(robot.getBrakes()));
-        telemetry.addData           ("Speed Multiplier", toStringPercent(numerator));
+        telemetry.addData           (format.toBoldString("CHASSIS"), "");
+        telemetry.addData           ("Brakes", format.toStringBoolColored(robot.getBrakes()));
+        telemetry.addData           ("Speed Multiplier", format.toStringPercent(numerator));
 
-        telemetry.addData           (toBoldString("SCORING DEVICE"), "");
+        telemetry.addData           (format.toBoldString("SCORING DEVICE"), "");
         telemetry.addData           ("Flywheel Velocity Raw", robot.getFlywheelVelocity());
-        telemetry.addData           ("Flywheel Ready", toStringPercent(robot.getFlywheelReadyAsDecimal()));
+        telemetry.addData           ("Flywheel Ready", format.toStringPercent(robot.getFlywheelReadyAsDecimal()));
 
-        telemetry.addData           (toBoldString("EXTRA"), "");
+        telemetry.addData           (format.toBoldString("EXTRA"), "");
         telemetry.addData           ("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         telemetry.addData           ("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.update();
         loop_time.reset();
-        robot.updateSensors();
+        robot.updateEncoders();
     }
 }

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.badApples.core.AutoCore;
-import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.robotFunctionCore;
 
 @Autonomous(name = "Turn Test", group = "Basic")
 public class turnTest extends OpMode {
@@ -28,7 +28,7 @@ public class turnTest extends OpMode {
     @Override
     public void start() {
         telemetry.addData("Runtime",runtime.milliseconds());
-        autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
+        autonomous.setBrakes(robotFunctionCore.Brake.ENGAGED); // set the desired state for brakes
 
 
 

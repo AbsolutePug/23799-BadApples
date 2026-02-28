@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.badApples.core;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 /**
  * Extends functionality of RobotHardware for scheduled actions during autonomous
  */
-public class AutoCore extends RobotFunctionCore {
+public class AutoCore extends robotFunctionCore {
     final public LocalizationCore localization = new LocalizationCore();
+    public ElapsedTime timer = new ElapsedTime();
 
     public enum TeamColor {RED, BLUE}
     public enum StartingLocation {BIG_TRIANGLE, SMALL_TRIANGLE}
@@ -27,7 +29,7 @@ public class AutoCore extends RobotFunctionCore {
     public void move(double speed_laterally, double speed_axially, double time) {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
-        while (timeout.milliseconds() < time && !actionStopped) {
+        while (timeout.milliseconds() < time && !actionStopped && autonomousPeriod()) {
             double speed = easeOutQuad(timeout.milliseconds()/time);
             speed = Math.min(speed,1); // Normalize
 
@@ -43,15 +45,15 @@ public class AutoCore extends RobotFunctionCore {
     public void shoot() {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
-        while (timeout.milliseconds() < 3000 && !actionStopped) {
+        while (timeout.milliseconds() < 3000 && !actionStopped && autonomousPeriod()) {
             setLauncher(true,false);
         }
         timeout.reset();
-        while (timeout.milliseconds() < 1000) {
+        while (timeout.milliseconds() < 1000 && !actionStopped && autonomousPeriod()) {
             setLauncher(false,false);
         }
         timeout.reset();
-        while (timeout.milliseconds() < 3000 && !actionStopped) {
+        while (timeout.milliseconds() < 3000 && !actionStopped && autonomousPeriod()) {
             setLauncher(false,true);
         }
         setLauncher(false);
@@ -59,13 +61,13 @@ public class AutoCore extends RobotFunctionCore {
     public void shootLeft() {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
-        while (timeout.milliseconds() < 2000 && !actionStopped) {
+        while (timeout.milliseconds() < 1500 && !actionStopped && autonomousPeriod()) {
             setLauncher(true,false);
         }
-        while (timeout.milliseconds() < 1000) {
-            setLauncher(false,false);
+        while (timeout.milliseconds() < 1000 && !actionStopped && autonomousPeriod()) {
+            setLauncher(false);
         }
-        while (timeout.milliseconds() < 2000 && !actionStopped) {
+        while (timeout.milliseconds() < 4000 && !actionStopped && autonomousPeriod()) {
             setLauncher(true,false);
         }
         setLauncher(false);
@@ -73,13 +75,13 @@ public class AutoCore extends RobotFunctionCore {
     public void shootRight() {
         actionStopped = false;
         ElapsedTime timeout = new ElapsedTime();
-        while (timeout.milliseconds() < 2000 && !actionStopped) {
+        while (timeout.milliseconds() < 1500 && !actionStopped && autonomousPeriod()) {
             setLauncher(false,true);
         }
-        while (timeout.milliseconds() < 1000) {
+        while (timeout.milliseconds() < 1000 && !actionStopped && autonomousPeriod()) {
             setLauncher(false,false);
         }
-        while (timeout.milliseconds() < 2000 && !actionStopped) {
+        while (timeout.milliseconds() < 4000 && !actionStopped && autonomousPeriod()) {
             setLauncher(false,true);
         }
         setLauncher(false);
@@ -110,12 +112,15 @@ public class AutoCore extends RobotFunctionCore {
     }
     public void waitUntilFlywheelIsReady() {
         actionStopped = false;
-        while (!getFlywheelReady() && !actionStopped) {
-            // this is bad but idc right now if it works
-            ElapsedTime timeout = new ElapsedTime();
-            while (timeout.milliseconds() < 1000) {
-
-            }
+        while (!getFlywheelReady() && !actionStopped&& autonomousPeriod()) {
+            updateEncoders();
         }
+    }
+
+    public boolean autonomousPeriod() {
+        return Math.floor(timer.seconds()) < 30;
+    }
+    public void resetTimer() {
+        timer.reset();
     }
 }

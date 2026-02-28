@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
-public class LocalizationCore extends RobotFunctionCore {
+public class LocalizationCore extends robotFunctionCore {
     // Hardware
     private SparkFunOTOS otos;
     private IMU imu;

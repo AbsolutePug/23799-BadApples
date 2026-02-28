@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.badApples.core.AutoCore;
-import org.firstinspires.ftc.teamcode.badApples.core.RobotFunctionCore;
+import org.firstinspires.ftc.teamcode.badApples.core.robotFunctionCore;
 
 @Autonomous(name = "Autonomous: Move outside zone only", group = "Auto")
 public class AutoBasic extends LinearOpMode {
@@ -16,7 +16,7 @@ public class AutoBasic extends LinearOpMode {
         autonomous.init(hardwareMap);
 
         waitForStart();
-        autonomous.setBrakes(RobotFunctionCore.Brake.ENGAGED); // set the desired default state for brakes
+        autonomous.setBrakes(robotFunctionCore.Brake.ENGAGED); // set the desired default state for brakes
 
         autonomous.move(0,1,1000);
         sleep(2000);
